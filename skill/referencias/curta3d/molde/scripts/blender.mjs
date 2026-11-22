@@ -8,7 +8,7 @@ import os from "node:os";
 import { spawnSync } from "node:child_process";
 import { PROJETO, acharRaiz } from "./preparar.mjs";
 
-// O mesmo caminho que o `python sistema/editar.py verificar` confere: a variável BLENDER, o lugar padrão do sistema
+// O mesmo caminho que o `python .ferramenta/sistema/editar.py verificar` confere: a variável BLENDER, o lugar padrão do sistema
 // (Windows: a versão mais nova em Program Files/Blender Foundation; Mac: /Applications/Blender.app) e o PATH.
 const noPath = () => {
   const r = spawnSync(os.platform() === "win32" ? "where" : "which", ["blender"], { encoding: "utf8" });
@@ -30,7 +30,7 @@ const acharBlender = () => {
 
 const blender = acharBlender();
 if (!blender) {
-  console.error("Blender não encontrado. Ele é gratuito e não precisa de placa de vídeo: " + (os.platform() === "darwin" ? "brew install --cask blender" : os.platform() === "win32" ? "winget install BlenderFoundation.Blender" : "instale pelo gerenciador do sistema") + " (ou blender.org, versão 4.2 ou mais nova). Em outro lugar, defina BLENDER com o caminho. Confira com: python sistema/editar.py verificar");
+  console.error("Blender não encontrado. Ele é gratuito e não precisa de placa de vídeo: " + (os.platform() === "darwin" ? "brew install --cask blender" : os.platform() === "win32" ? "winget install BlenderFoundation.Blender" : "instale pelo gerenciador do sistema") + " (ou blender.org, versão 4.2 ou mais nova). Em outro lugar, defina BLENDER com o caminho. Confira com: python .ferramenta/sistema/editar.py verificar");
   process.exit(1);
 }
 const lista = process.argv.slice(2);

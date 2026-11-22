@@ -125,7 +125,7 @@ Numa mensagem, para ela ler de uma vez:
 - **O estilo da edição sugerido, numa linha,** pelo que o vídeo pede (ver "Qual estilo" no [EDITAR.md](../EDITAR.md)), e se ele muda a gravação (o Parede pede parede livre atrás; o Metade e o Títulos Desenhados, espaço em cima da cabeça; os estilos só de voz nem precisam gravar). Ela confirma junto com o roteiro.
 - **Para gravar:** o que ela precisa preparar antes (prints, a tela gravada, o resultado do teste, o objeto na mão). **Nos estilos só de voz,** no lugar: **para a edição**, os personagens (com a marca de cada um), os lugares, a luz e os sons de história, que a edição vai precisar criar.
 
-Guarde o roteiro aprovado em `projetos/NOME/roteiro.md`. A fala aprovada é a base da edição: no corte, vale o que ela falou de verdade, que pode mudar um pouco do roteiro.
+Guarde o roteiro aprovado em `roteiros/NOME.md` (a pasta da pessoa, que entra no backup dela). A fala aprovada é a base da edição: no corte, vale o que ela falou de verdade, que pode mudar um pouco do roteiro.
 
 ## Aprender com cada roteiro
 

@@ -22,7 +22,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .comum import FONTES, duracao, gravar_json, ler_json, rodar
+from .comum import EDITAR, FONTES, duracao, gravar_json, ler_json, rodar
 
 QUADRO_W, QUADRO_H = 270, 480  # miniatura nas folhas: dá para ler texto grande e ver a composição
 TAXA_SOM = 22050
@@ -477,7 +477,7 @@ def analisar(fonte: str, pasta: Path) -> None:
     for chave in ("gancho", "entradas", "cortes", "efeitos", "video"):
         for arq in imagens.get(chave, []):
             linhas.append(f"- `{arq.name}`: {nomes[chave]}")
-    linhas += ["", "Quadro em tamanho cheio de um instante: `python sistema/editar.py referencia quadros PASTA 12.5 20.2`"]
+    linhas += ["", f"Quadro em tamanho cheio de um instante: `{EDITAR} referencia quadros PASTA 12.5 20.2`"]
     (pasta / "resumo.md").write_text("\n".join(linhas) + "\n", encoding="utf-8")
     print("\n".join(linhas[:30]))
     print(f"\nResumo completo e imagens em {pasta}")

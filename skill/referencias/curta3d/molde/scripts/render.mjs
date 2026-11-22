@@ -4,7 +4,7 @@
 //   node scripts/render.mjs --rascunho         -> metade da resolução, para ver o movimento rápido
 //   node scripts/render.mjs --saida OUTRO.mp4  --processos 4
 //   node scripts/render.mjs --ate 12           -> só os 12 primeiros segundos (para testar um cenário e medir o tempo)
-// Depois: python sistema/editar.py finalizar projetos/NOME/out/render.mp4   (sai em editor/versoes/NOME-vN.mp4)
+// Depois, da pasta do editor: python .ferramenta/sistema/editar.py finalizar .projetos/NOME/out/render.mp4   (sai em versoes/NOME-vN.mp4)
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";

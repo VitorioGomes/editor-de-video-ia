@@ -16,7 +16,7 @@ export const normal = (s: string) => s.toLowerCase().normalize("NFD").replace(/[
 /**
  * Onde a palavra (ou a sequência de palavras, "se chama") aparece pela n-ésima vez. Compara a palavra inteira,
  * sem maiúscula nem pontuação: "chama" casa só com "chama" (e "Chama,"), nunca com um pedaço de outra palavra.
- * Para ver cada palavra com o número da vez: python sistema/editar.py palavras projetos/NOME/corte/palavras.json
+ * Para ver cada palavra com o número da vez: python .ferramenta/sistema/editar.py palavras .projetos/NOME/corte/palavras.json
  */
 const achar = (palavra: string, n: number) => {
   const alvo = palavra.trim().split(/\s+/).map(normal).filter(Boolean);
@@ -24,7 +24,7 @@ const achar = (palavra: string, n: number) => {
   for (let i = 0; i + alvo.length <= PALAVRAS.length; i++) {
     if (alvo.every((a, j) => normal(PALAVRAS[i + j].texto) === a) && ++k === n) return [PALAVRAS[i], PALAVRAS[i + alvo.length - 1]];
   }
-  throw new Error(`palavra não encontrada na fala: "${palavra}" (vez ${n}). Veja as palavras com: python sistema/editar.py palavras projetos/NOME/corte/palavras.json`);
+  throw new Error(`palavra não encontrada na fala: "${palavra}" (vez ${n}). Veja as palavras com: python .ferramenta/sistema/editar.py palavras .projetos/NOME/corte/palavras.json`);
 };
 export const em = (palavra: string, n = 1): number => achar(palavra, n)[0].inicio;
 /** segundo em que a palavra (ou a sequência) acaba */

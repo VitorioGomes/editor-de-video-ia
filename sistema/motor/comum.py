@@ -11,30 +11,60 @@ import unicodedata
 from pathlib import Path
 
 SISTEMA = Path(__file__).resolve().parents[1]
-RAIZ = SISTEMA.parent
-MEU_ESTILO = RAIZ / "meu-estilo"
+# A ferramenta (o clone do GitHub, com skill/ e sistema/) mora em .ferramenta/, escondida dentro da pasta do editor,
+# e os arquivos da pessoa ficam soltos na pasta do editor, fora dela (2026-11-21). Assim o git pull só mexe na
+# ferramenta, e o gosto e os roteiros entram no backup da pessoa. Fora de uma .ferramenta/ (a oficina, ou a
+# instalação antiga antes do comecar --migrar), a pasta do editor é a própria ferramenta.
+FERRAMENTA = SISTEMA.parent
+EDITOR = FERRAMENTA.parent if FERRAMENTA.name == ".ferramenta" else FERRAMENTA
+RAIZ = EDITOR  # nome antigo: a pasta principal, a de quem usa
+MEU_ESTILO = EDITOR / "meu-estilo"
 FONTES = SISTEMA / "fontes"
 EFEITOS = SISTEMA / "efeitos"
-REFERENCIAS = RAIZ / "skill" / "referencias" / "animacoes"
+REFERENCIAS = FERRAMENTA / "skill" / "referencias" / "animacoes"
 HYPERFRAMES = "hyperframes@0.9.9"
 
-# As pastas que a pessoa olha (2026-11-21): ela só precisa abrir a editor/.
-#   editor/brutos/    onde ela põe o vídeo ou o áudio gravado
-#   editor/versoes/   cada versão que ela assiste antes de aprovar (NOME-v1.mp4, NOME-v2.mp4...)
-#   editor/editados/  o vídeo aprovado, pronto para postar
-# O trabalho de cada vídeo (corte, transcrição, roteiro, animações, render) fica em projetos/NOME/.
-EDITOR = RAIZ / "editor"
+# As pastas da pessoa, soltas na pasta do editor:
+#   brutos/     onde ela põe o vídeo ou o áudio gravado
+#   versoes/    cada versão que ela assiste antes de aprovar (NOME-v1.mp4, NOME-v2.mp4...)
+#   editados/   o vídeo aprovado, pronto para postar
+#   meu-estilo/ o gosto dela
+#   roteiros/   os roteiros aprovados (NOME.md)
+# O trabalho de cada vídeo (corte, transcrição, roteiro.json, animações, render) fica em .projetos/NOME/, escondida.
 BRUTOS = EDITOR / "brutos"
 VERSOES = EDITOR / "versoes"
 EDITADOS = EDITOR / "editados"
-PROJETOS = RAIZ / "projetos"
+ROTEIROS = EDITOR / "roteiros"
+PROJETOS = EDITOR / ".projetos"
+ENV = EDITOR / ".env"  # a chave da ElevenLabs: fora da ferramenta (sobrevive a baixar de novo) e fora do backup
+
+
+def rel(caminho: Path) -> str:
+    """O caminho como a pessoa (e a IA) escreve nos comandos: relativo à pasta do editor."""
+    try:
+        return Path(caminho).resolve().relative_to(EDITOR).as_posix()
+    except ValueError:
+        return str(caminho)
+
+
+EDITAR = f"python {rel(SISTEMA / 'editar.py')}"  # o comando, de dentro da pasta do editor
+
+
+def chave_do_env(nome: str) -> str | None:
+    """Uma linha NOME=valor do .env da pasta do editor (ou da ferramenta, onde ficava na versão antiga)."""
+    for env in (ENV, FERRAMENTA / ".env"):
+        if env.exists():
+            for linha in env.read_text(encoding="utf-8", errors="replace").splitlines():
+                if linha.strip().startswith(nome + "="):
+                    return linha.split("=", 1)[1].strip().strip('"').strip("'")
+    return None
 
 
 def nome_do_video(arquivo: Path) -> str:
-    """O NOME do vídeo a partir de um arquivo dele: a pasta em projetos/NOME/ (ou videos/NOME/, da versão antiga),
-    ou o nome do arquivo sem o "-v2" do fim."""
+    """O NOME do vídeo a partir de um arquivo dele: a pasta em .projetos/NOME/ (ou projetos/NOME/ e videos/NOME/,
+    das versões antigas), ou o nome do arquivo sem o "-v2" do fim."""
     partes = Path(arquivo).resolve().parts
-    for raiz in ("projetos", "videos"):
+    for raiz in (".projetos", "projetos", "videos"):
         if raiz in partes:
             i = len(partes) - 1 - partes[::-1].index(raiz)
             if i + 1 < len(partes) - 1:
@@ -43,7 +73,7 @@ def nome_do_video(arquivo: Path) -> str:
 
 
 def proxima_versao(nome: str) -> Path:
-    """editor/versoes/NOME-vN.mp4, com o primeiro N livre."""
+    """versoes/NOME-vN.mp4, com o primeiro N livre."""
     VERSOES.mkdir(parents=True, exist_ok=True)
     n = 1
     while (VERSOES / f"{nome}-v{n}.mp4").exists():
@@ -80,7 +110,7 @@ def npx() -> str:
     """No Windows o npx é npx.cmd; o which acha o certo nos dois sistemas."""
     caminho = shutil.which("npx")
     if not caminho:
-        sys.exit("Node.js não encontrado (falta o npx). Rode: python sistema/editar.py verificar")
+        sys.exit(f"Node.js não encontrado (falta o npx). Rode: {EDITAR} verificar")
     return caminho
 
 

@@ -20,7 +20,7 @@ import difflib
 import subprocess
 from pathlib import Path
 
-from .comum import audio, config, duracao, gravar_json, ler_json, niveis, normal
+from .comum import EDITAR, audio, config, duracao, gravar_json, ler_json, niveis, normal, rel
 from .voz import _limpa, ler_falas
 
 ALVO_DB = -20.0  # nível da fala de todas as gravações, para uma voz não sair mais alta que a outra
@@ -178,4 +178,4 @@ def falas_gravadas(texto: Path, audios: list[Path], saida: Path, vocabulario: st
                     "-c:a", "aac", "-b:a", "256k", str(saida / "base.mp4")], check=True)
     quem = sorted({f["quem"] for f in falas})
     print(f"{len(falas)} falas ({', '.join(quem)}), {len(palavras)} palavras, {total:.2f} s em {saida}")
-    print("Confira as falas com: python sistema/editar.py falas " + (saida / "palavras.json").as_posix())
+    print(f"Confira as falas com: {EDITAR} falas {rel(saida / 'palavras.json')}")

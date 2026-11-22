@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .comum import audio, config, gravar_json
+from .comum import SISTEMA, audio, config, gravar_json, rel
 
 _modelos: dict = {}
 INSTALAR_PLACA = "python -m pip install torch --index-url https://download.pytorch.org/whl/cu128"
@@ -206,7 +206,7 @@ def transcrever(video: Path, saida: Path, vocabulario: str = "", idioma: str | N
         print(f"Tempo acertado pelo som em {feitas} de {len(lista)} palavras.")
     else:
         print("Aviso: sem o alinhador (torch e transformers), o tempo das palavras pode sair até 0,3 s fora. "
-              "Instale com: python -m pip install -r sistema/requisitos.txt")
+              f"Instale com: python -m pip install -r {rel(SISTEMA / 'requisitos.txt')}")
     lista.sort(key=lambda p: p["inicio"])
     for p, seguinte in zip(lista, lista[1:]):  # a palavra esticada por cima da frase pulada termina onde a outra começa
         p["fim"] = round(min(p["fim"], max(seguinte["inicio"], p["inicio"] + 0.05)), 3)

@@ -75,7 +75,7 @@ Efeitos baixos e variados, **só quando um título ou um elemento entra**, sem m
 
 ## Ícones
 
-Os ícones de marca entram de verdade, nunca redesenhados de cabeça. Na pasta de exemplos (`skill/referencias/animacoes/`) estão prontos, já coloridos e feitos para ler sobre o alto escuro. Entram na marcação com `<!--#inclui td-icone-NOME.svg-->`, dentro de uma caixa com largura e altura:
+Os ícones de marca entram de verdade, nunca redesenhados de cabeça. Na pasta de exemplos (`.ferramenta/skill/referencias/animacoes/`) estão prontos, já coloridos e feitos para ler sobre o alto escuro. Entram na marcação com `<!--#inclui td-icone-NOME.svg-->`, dentro de uma caixa com largura e altura:
 
 | Arquivo `td-icone-...svg` | O que é | Origem e licença |
 |---|---|---|
@@ -94,11 +94,11 @@ Os ícones de marca entram de verdade, nunca redesenhados de cabeça. Na pasta d
 **Ícone que falta:** busque o logo oficial no theSVG, de graça:
 
 ```
-npx hyperframes@0.9.9 media-use resolve --type logo --entity NOME --intent "NOME logo" --project projetos/NOME
+npx hyperframes@0.9.9 media-use resolve --type logo --entity NOME --intent "NOME logo" --project .projetos/NOME
 ```
 
 - O `--entity` é o nome curto da marca, tudo junto e em minúsculas, como no site dela: `notion`, `whatsapp`, `github`, `n8n`, `googlegemini`, `googlesheets`, `microsoftexcel`. Quando não acha, tente com hífen (`visual-studio-code` achou o VS Code, que `vscode` não achava), o nome da empresa (`google`, `microsoft`) ou o domínio sem o ".com".
-- O arquivo sai em `projetos/NOME/.media/images/`, e o `manifest.jsonl` do lado diz a licença (`"license"`). **Só use CC0.** Se vier MIT ou outra (aconteceu com a OpenAI e o Excel), procure no Simple Icons (CC0): `https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/NOME.svg`. Sem licença livre, desenhe um ícone genérico (como a `planilha`) e escreva o nome da ferramenta ao lado.
+- O arquivo sai em `.projetos/NOME/.media/images/`, e o `manifest.jsonl` do lado diz a licença (`"license"`). **Só use CC0.** Se vier MIT ou outra (aconteceu com a OpenAI e o Excel), procure no Simple Icons (CC0): `https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/NOME.svg`. Sem licença livre, desenhe um ícone genérico (como a `planilha`) e escreva o nome da ferramenta ao lado.
 - **Logo de uma cor só** (muitos vêm assim): o desenho tem um `fill` só. Para pôr as cores do logo de verdade, separe o caminho em pedaços (cada `M...z` do `d` é uma parte) e dê a cada parte a cor dela, como no `td-icone-chrome.svg`; ou, se o logo de verdade é em degradê, troque o `fill` por um `linearGradient`, como no `td-icone-gemini.svg`. Logo escuro (preto) não aparece no alto escurecido: ponha dentro de um quadrado arredondado, como o ícone do app (`td-icone-github.svg`).
 - Antes de incluir, tire do SVG o `<title>`, os comentários e o `<style>` (passe a cor para o `fill` de cada elemento), e troque cada `id="x"` por `id="td$IDx"` (e o `url(#x)` junto), para dois logos iguais no vídeo não se misturarem.
 
@@ -110,12 +110,12 @@ A marca continua sendo da empresa: use o logo só para citar a ferramenta de que
 2. **Ano, número e valor:** a transcrição erra o tempo deles. Para cada um que vai ter título entrando na hora, rode:
 
    ```
-   python sistema/editar.py retempo projetos/NOME/corte/base.mp4 projetos/NOME/corte/palavras.json DE ATE
+   python .ferramenta/sistema/editar.py retempo .projetos/NOME/corte/base.mp4 .projetos/NOME/corte/palavras.json DE ATE
    ```
 
    com `DE` e `ATE` em segundos, pegando a frase inteira em volta do número (uns 2 a 4 s). Ele ouve o trecho de novo, acha cada palavra no som (o número por extenso: "dois mil e vinte e seis"), mostra o antes e o depois, a energia do áudio com o começo de cada palavra marcado, e grava o `palavras.json` (o original fica em `palavras.antes-do-retempo.json`). `--so-mostrar` só mostra. Confira na energia que a palavra começa onde a barra sobe.
 3. Divida a fala em trechos de ideia (3 a 6 s). Escolha os que ganham título e **deixe de 30 a 40% do vídeo sem título**. Para cada título, decida o desenho (ver acima) e escreva o `movimento.md`.
-4. Crie um arquivo por título em `projetos/NOME/animacoes/`, com `<!--#inclui td-base.css-->` no `<style>` e `<!--#inclui td-base.js-->` no `<script>`. Os exemplos são o vídeo inteiro: `td-gancho.html`, `td-icones.html`, `td-troca.html`, `td-arvore.html` e `td-calendario.html`. Leia, pegue o nível de acabamento **e o tamanho**, e desenhe os títulos do seu vídeo: **não copie**. A camada ocupa a tela toda em largura e as peças ficam em pixels da tela.
+4. Crie um arquivo por título em `.projetos/NOME/animacoes/`, com `<!--#inclui td-base.css-->` no `<style>` e `<!--#inclui td-base.js-->` no `<script>`. Os exemplos são o vídeo inteiro: `td-gancho.html`, `td-icones.html`, `td-troca.html`, `td-arvore.html` e `td-calendario.html`. Leia, pegue o nível de acabamento **e o tamanho**, e desenhe os títulos do seu vídeo: **não copie**. A camada ocupa a tela toda em largura e as peças ficam em pixels da tela.
 5. No `roteiro.json`:
 
 ```json
@@ -146,7 +146,7 @@ A marca continua sendo da empresa: use o logo só para citar a ferramenta de que
 **Primeiro a conferência automática**, depois de cada `montar`:
 
 ```
-python sistema/editar.py titulos projetos/NOME/montagem projetos/NOME/corte/base.mp4
+python .ferramenta/sistema/editar.py titulos .projetos/NOME/montagem .projetos/NOME/corte/base.mp4
 ```
 
 Ela anda o vídeo a cada 0,2 s com a animação correndo e mede cada título: **encosta ou passa por cima da cabeça** (o topo da cabeça sai de um recorte rápido da pessoa, feito na primeira vez e guardado na montagem; se o projeto já tem `recorte.webm`, passe `--recorte`), **sai da área** (acima de 220 px, fora de 150 a 930 px), **palavra principal pequena** (menos de 110 px), **título estreito** (menos de 60% da largura útil), **texto miúdo** (menos de 32 px) e **legenda baixa** (base abaixo de 1.700 px). Diz o título, o texto, o segundo e quantos px subir. Corrija até sair "0 com problema". As estrelinhas de menos de 40 px podem passar um pouco da margem. No vídeo de exemplo, gravado com pouco espaço acima da cabeça, o comando acusa três títulos encostando no cabelo (de 4 a 56 px): é por isso que a gravação pede um palmo de parede livre.

@@ -1,6 +1,6 @@
 """Monta o projeto HyperFrames (1080x1920) a partir do vídeo cortado, das palavras e do roteiro de camadas.
 
-As cores e as fontes vêm da configuração (sistema/padrao.json com meu-estilo/marca.json por cima).
+As cores e as fontes vêm da configuração (o padrao.json da ferramenta com o meu-estilo/marca.json por cima).
 Cada camada já traz um efeito sonoro padrão do SFX Kit; "som": "id" troca e "som": false tira.
 """
 from __future__ import annotations
@@ -116,7 +116,7 @@ def css_fontes(cfg: dict, projeto: Path) -> str:
     for f in cfg["arquivos_de_fonte"]:
         origem = next((p / f["arquivo"] for p in (MEU_ESTILO / "fontes", FONTES) if (p / f["arquivo"]).exists()), None)
         if not origem:
-            sys.exit(f"Fonte {f['arquivo']} não encontrada em meu-estilo/fontes nem em sistema/fontes.")
+            sys.exit(f"Fonte {f['arquivo']} não encontrada em meu-estilo/fontes nem nas fontes da ferramenta.")
         shutil.copy(origem, projeto / "assets" / "fonts" / origem.name)
         regras.append(f'@font-face {{ font-family: "{f["familia"]}"; src: url("assets/fonts/{origem.name}"); '
                       f'font-weight: {f.get("peso", 400)}; font-style: {f.get("estilo", "normal")}; }}')
@@ -258,7 +258,7 @@ def montar(base: Path, arquivo: Path, roteiro: Path, projeto: Path, sem_efeitos:
             escolhido = PALETAS[chave][giro.get(chave, 0) % len(PALETAS[chave])]
             giro[chave] = giro.get(chave, 0) + 1
         if escolhido not in catalogo:
-            sys.exit(f"Efeito {escolhido} não existe. Veja sistema/efeitos/catalogue.md.")
+            sys.exit(f"Efeito {escolhido} não existe. Veja .ferramenta/sistema/efeitos/catalogue.md.")
         s = catalogo[escolhido]
         inicio_som = momento + QUADRO - s["sync"]["at"]
         corte = max(0.0, -inicio_som)

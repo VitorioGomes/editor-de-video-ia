@@ -1,5 +1,5 @@
 // A fala dos personagens: quem fala em cada quadro e quanto a boca abre, sílaba por sílaba.
-// O palavras.json da voz com personagens (python sistema/editar.py voz, com [nome] em cada linha) traz "quem" e
+// O palavras.json da voz com personagens (python .ferramenta/sistema/editar.py voz, com [nome] em cada linha) traz "quem" e
 // "fala" em cada palavra. A boca abre em cada sílaba (os grupos de vogais da palavra), mais nas vogais abertas
 // (a, é, ó) e menos nas fechadas (i, u), e fecha entre as palavras.
 import { PALAVRAS, FPS, clamp01 } from "./tempo";

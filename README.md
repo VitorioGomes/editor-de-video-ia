@@ -4,7 +4,7 @@ Edita os seus vídeos curtos (Reels, TikTok, Shorts) com a ajuda da IA: escreve 
 
 ## Os estilos
 
-Dez estilos prontos, cada um já com as fontes, as cores e o jeito de editar. Para ver cada um em movimento, abra o `skill/catalogo.html` no navegador (a IA abre para você na primeira conversa).
+Dez estilos prontos, cada um já com as fontes, as cores e o jeito de editar. Para ver cada um em movimento, há um catálogo que a IA abre no seu navegador na primeira conversa.
 
 **Você aparece:**
 
@@ -33,15 +33,19 @@ Dez estilos prontos, cada um já com as fontes, as cores e o jeito de editar. Pa
 
 Você precisa de uma IA de terminal (Claude Code, Codex ou Gemini CLI) e do [Git](https://git-scm.com). O resto (Python, Node.js e ffmpeg) a IA verifica e instala com você.
 
-Abra a IA numa pasta vazia e cole:
+Abra a IA na pasta onde você quer o editor (uma pasta vazia, ou a pasta das suas notas) e cole:
 
 ```
-Clone o repositório https://github.com/VitorioGomes/editor-de-video-ia e siga o roteiro em skill/EDITAR.md.
+Clone o repositório https://github.com/VitorioGomes/editor-de-video-ia em editor/.ferramenta (ou só em .ferramenta, se esta pasta estiver vazia) e siga o roteiro em .ferramenta/skill/EDITAR.md.
 ```
 
 Ela instala, abre o catálogo, pergunta qual estilo você quer e se você tem um vídeo, um áudio ou só a ideia, e edita o primeiro vídeo com você. Sem questionário.
 
-**Você só precisa olhar uma pasta, a `editor/`:** em `brutos/` você põe o que gravou, em `versoes/` aparecem os vídeos para assistir e em `editados/` ficam os aprovados, prontos para postar.
+**As suas pastas:** em `brutos/` você põe o que gravou, em `versoes/` aparecem os vídeos para assistir, em `editados/` ficam os aprovados, prontos para postar, em `meu-estilo/` fica o gosto que a IA aprendeu e em `roteiros/`, os roteiros aprovados.
+
+Se a pasta tem backup no GitHub, o seu gosto e os roteiros entram no seu backup; os vídeos ficam no computador.
+
+Para atualizar, peça à IA: "atualize o editor".
 
 ## O que saber antes
 

@@ -18,7 +18,7 @@ Peça **2 ou 3 vídeos** do mesmo estilo, se ela tiver: com um só, não dá par
 ## 2. Analisar
 
 ```
-python sistema/editar.py referencia analisar LINK_OU_ARQUIVO --saida projetos/referencias/NOME
+python .ferramenta/sistema/editar.py referencia analisar LINK_OU_ARQUIVO --saida .projetos/referencias/NOME
 ```
 
 Aceita link público do Instagram, TikTok ou YouTube, ou o arquivo. Vídeo privado não baixa: peça para ela baixar ou gravar a tela do celular e passar o arquivo. Leva uns 2 minutos para 1 minuto de vídeo; na primeira vez baixa o separador de voz (uns 80 MB).
@@ -29,7 +29,7 @@ Ele mede o ritmo (cortes e coisas que entram na tela por minuto), as cores, a m�
 
 ## 3. Ler
 
-Leia o `resumo.md` e abra **todas** as folhas, na ordem que ele dá. Para ver um detalhe (a fonte, um texto pequeno), tire o quadro em tamanho cheio: `python sistema/editar.py referencia quadros projetos/referencias/NOME 12.5 20.2`.
+Leia o `resumo.md` e abra **todas** as folhas, na ordem que ele dá. Para ver um detalhe (a fonte, um texto pequeno), tire o quadro em tamanho cheio: `python .ferramenta/sistema/editar.py referencia quadros .projetos/referencias/NOME 12.5 20.2`.
 
 Anote, com números (px, segundos, cores):
 
@@ -51,7 +51,7 @@ Olhe também o que se repete em todos os vídeos da referência: isso é o estil
 
 ## 4. Escrever o guia do estilo
 
-Crie `meu-estilo/estilos/NOME.md` no mesmo formato dos guias de `skill/estilos/` (leia um deles antes): a ideia em duas linhas, **Gravação**, **Na tela**, **Som** e **Como montar**. Escreva com os números que você anotou, para o próximo vídeo sair igual sem rever a referência. No fim, **De onde veio**: o link, a data e se é igual ou inspirado. Guarde 2 ou 3 quadros da referência em `meu-estilo/estilos/imagens/` para ela reconhecer o estilo.
+Crie `meu-estilo/estilos/NOME.md` no mesmo formato dos guias de `.ferramenta/skill/estilos/` (leia um deles antes): a ideia em duas linhas, **Gravação**, **Na tela**, **Som** e **Como montar**. Escreva com os números que você anotou, para o próximo vídeo sair igual sem rever a referência. No fim, **De onde veio**: o link, a data e se é igual ou inspirado. Guarde 2 ou 3 quadros da referência em `meu-estilo/estilos/imagens/` para ela reconhecer o estilo.
 
 Depois, traduza o estilo para o motor:
 
@@ -65,12 +65,12 @@ Na seção do estilo no `meu-estilo/regras.md`, anote que ele existe e onde est�
 
 ## 5. Editar o primeiro vídeo
 
-Siga "Cada vídeo" no [EDITAR.md](../EDITAR.md), com o guia novo no lugar do guia de `skill/estilos/`.
+Siga "Cada vídeo" no [EDITAR.md](../EDITAR.md), com o guia novo no lugar do guia de `.ferramenta/skill/estilos/`.
 
 ## 6. Comparar antes de mostrar
 
 ```
-python sistema/editar.py referencia comparar projetos/referencias/NOME editor/versoes/NOME-v1.mp4 --saida projetos/NOME/comparacao
+python .ferramenta/sistema/editar.py referencia comparar .projetos/referencias/NOME versoes/NOME-v1.mp4 --saida .projetos/NOME/comparacao
 ```
 
 Ele mede o vídeo editado do mesmo jeito e põe referência e editado lado a lado, nos mesmos pontos do vídeo. Abra as folhas `lado-a-lado-N.jpg` e procure o que a referência tem e o seu não tem: tamanho do texto, contraste entre o grande e o pequeno, quantidade de coisas na tela, movimento, acabamento das janelas e dos cartões.

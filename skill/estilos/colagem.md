@@ -6,7 +6,7 @@ Vídeo só de animação, sem a pessoa em cena, sobre a voz: **colagem editorial
 
 ## A voz
 
-Gravada pela pessoa ou de IA (ver [voz-de-ia.md](../referencias/voz-de-ia.md)). **Gravada pela pessoa:** o áudio do celular (o gravador de voz serve; m4a, mp3 ou wav), posto em `editor/brutos/`. Ele passa pelo `transcrever` e pelo `cortar`, como um vídeo: saem as pausas, entra o tratamento de voz, e o vídeo de base é preto, com a duração exata da voz. O tempo de cada palavra é o da gravação. Com a voz dela, peça para gravar num ritmo animado: o estilo pede fala rápida. Um pouco mais rápida que no Motion: com voz de IA, `"velocidade": 1.08` no `meu-estilo/marca.json`.
+Gravada pela pessoa ou de IA (ver [voz-de-ia.md](../referencias/voz-de-ia.md)). **Gravada pela pessoa:** o áudio do celular (o gravador de voz serve; m4a, mp3 ou wav), posto em `brutos/`. Ele passa pelo `transcrever` e pelo `cortar`, como um vídeo: saem as pausas, entra o tratamento de voz, e o vídeo de base é preto, com a duração exata da voz. O tempo de cada palavra é o da gravação. Com a voz dela, peça para gravar num ritmo animado: o estilo pede fala rápida. Um pouco mais rápida que no Motion: com voz de IA, `"velocidade": 1.08` no `meu-estilo/marca.json`.
 
 ## Na tela
 
@@ -27,7 +27,7 @@ Pouco efeito: uma etiqueta batendo, um carimbo, o objeto caindo, o clique do fin
 
 ## Como montar
 
-1. A voz, já na velocidade do estilo, em `projetos/NOME/corte/` (`voz` com a de IA; `transcrever` e `cortar` com a gravada).
+1. A voz, já na velocidade do estilo, em `.projetos/NOME/corte/` (`voz` com a de IA; `transcrever` e `cortar` com a gravada).
 2. No `roteiro.json`: `mc-fundo.html` do início ao fim (com as marcas das abas) e uma cena por aba (os exemplos são `mc-ideia.html`, `mc-prompt.html`, `mc-teste.html`, `mc-prova.html` e `mc-fim.html`), todas com `"som": false` e os efeitos em `"sons"`.
 3. Em cada cena, `<!--#inclui mc-base.css-->` no `<style>` e, no `<script>`, `<!--#inclui mo-base.js-->` seguido de `<!--#inclui mc-base.js-->`.
 4. `montar`, olhar os quadros (bordas, sobreposições, a ordem do 3D), `renderizar`, `finalizar`.

@@ -21,13 +21,13 @@ Em elevenlabs.io, "Sign up".
 3. Deixe a chave restrita e libere só o necessário: **Text to Speech** em "Access" e **Voices** em "Read". O resto, sem acesso.
 4. Copie a chave. Ela só aparece uma vez.
 
-Crie (ou abra) o arquivo `.env` na pasta principal do editor e ponha a chave numa linha:
+Crie (ou abra) o arquivo `.env` na pasta do editor (a que tem `brutos/` e `meu-estilo/`, não dentro da ferramenta) e ponha a chave numa linha:
 
 ```
 ELEVENLABS_API_KEY=a-chave-que-a-pessoa-copiou
 ```
 
-O `.env` fica só no computador: ele não vai para o Git. A chave não vai em nenhum outro arquivo.
+O `.env` fica só no computador: ele não vai para o Git (se a pasta estiver num repositório, o `comecar` já pôs o `.env` no `.gitignore`; confira se ele está lá antes de gravar a chave). A chave não vai em nenhum outro arquivo.
 
 ## 3. Escolher a voz
 
@@ -50,16 +50,16 @@ Em dúvida entre duas ou três vozes, gere com cada uma a mesma frase curta (`vo
 
 ## 4. Gerar e ouvir
 
-Escreva o texto do vídeo **como ele vai aparecer na tela** em `projetos/NOME/texto.txt` e rode:
+Escreva o texto do vídeo **como ele vai aparecer na tela** em `.projetos/NOME/texto.txt` e rode:
 
 ```
-python sistema/editar.py voz projetos/NOME/texto.txt --saida projetos/NOME/corte
+python .ferramenta/sistema/editar.py voz .projetos/NOME/texto.txt --saida .projetos/NOME/corte
 ```
 
 Saem `voz.wav`, `palavras.json` (o tempo de cada palavra, sem transcrição) e `base.mp4` (vídeo preto com a voz), prontos para o `montar`.
 
 - **Velocidade:** a voz de IA costuma soar rápida. `0.95` deixa 5% mais devagar sem mudar o tom; ajuste se a pessoa achar rápido ou lento.
-- **Pronúncia:** nome de ferramenta e palavra em inglês às vezes saem errados (com voz estrangeira, acontece mais) ("IA" vira "ia", "QR code" sai em inglês). Anote em `meu-estilo/pronuncia.md` a grafia que soa certa (vale para todos os vídeos), ou num `pronuncia.md` ao lado do texto, em `projetos/NOME/` (vale só para aquele vídeo, e vem antes), e o texto da tela continua como está:
+- **Pronúncia:** nome de ferramenta e palavra em inglês às vezes saem errados (com voz estrangeira, acontece mais) ("IA" vira "ia", "QR code" sai em inglês). Anote em `meu-estilo/pronuncia.md` a grafia que soa certa (vale para todos os vídeos), ou num `pronuncia.md` ao lado do texto, em `.projetos/NOME/` (vale só para aquele vídeo, e vem antes), e o texto da tela continua como está:
 
 ```
 | Na tela | Para a voz |
@@ -73,7 +73,7 @@ Saem `voz.wav`, `palavras.json` (o tempo de cada palavra, sem transcrição) e `
 
 ## Se der erro
 
-- **"Falta ELEVENLABS_API_KEY"**: o `.env` não está na pasta principal ou a linha está escrita diferente.
+- **"Falta ELEVENLABS_API_KEY"**: o `.env` não está na pasta do editor ou a linha está escrita diferente.
 - **401 ou "invalid api key"**: a chave foi copiada pela metade, ou foi apagada no site. Crie outra.
 - **"missing permissions"**: faltou liberar Text to Speech ou Voices na chave.
 - **Voz não encontrada ou "not available for free users"**: a voz é da biblioteca e a conta está no plano grátis, ou a voz não foi adicionada em "My Voices".

@@ -8,7 +8,7 @@ Fundo grafite quase preto, brilho que passeia, interface escura e a cor `motion`
 
 ## A voz
 
-- **Gravada pela pessoa:** o áudio do celular (o gravador de voz serve; m4a, mp3 ou wav), posto em `editor/brutos/`. Ele passa pelo `transcrever` e pelo `cortar`, como um vídeo: saem as pausas, entra o tratamento de voz, e o vídeo de base é preto, com a duração exata da voz. O tempo de cada palavra é o da gravação.
+- **Gravada pela pessoa:** o áudio do celular (o gravador de voz serve; m4a, mp3 ou wav), posto em `brutos/`. Ele passa pelo `transcrever` e pelo `cortar`, como um vídeo: saem as pausas, entra o tratamento de voz, e o vídeo de base é preto, com a duração exata da voz. O tempo de cada palavra é o da gravação.
 - **Voz de IA (opcional):** ElevenLabs, com a conta e a chave da própria pessoa. O passo a passo inteiro (conta, plano, chave, escolher a voz, gerar, pronúncia e os erros comuns) está em [voz-de-ia.md](../referencias/voz-de-ia.md). Custa créditos da ElevenLabs: avise antes.
 
 ## Na tela
@@ -36,6 +36,6 @@ Um efeito em cada ação: clique quando algo é acionado, teclado na digitação
 
 ## Como montar
 
-1. A voz: `voz projetos/NOME/texto.txt --saida projetos/NOME/corte` (IA) ou, com a gravação da pessoa, `transcrever editor/brutos/AUDIO.m4a --saida projetos/NOME/fala` e `cortar editor/brutos/AUDIO.m4a projetos/NOME/fala/palavras.json --saida projetos/NOME/corte` (um áudio sem vídeo vira vídeo preto com a voz).
-2. O fundo (`mo-fundo.html`) primeiro, do início ao fim; depois uma cena por frase, com `"marcas"` em cada palavra que entra (`python sistema/editar.py palavras PALAVRAS.json DE ATE` dá as referências prontas). No `<style>` de cada cena, `<!--#inclui mo-base.css-->`; no `<script>`, `<!--#inclui mo-base.js-->` (palavra por palavra, cursor, digitação, entrada, emenda, impacto, saída). A última cena pode ficar até meio segundo depois da última palavra.
+1. A voz: `voz .projetos/NOME/texto.txt --saida .projetos/NOME/corte` (IA) ou, com a gravação da pessoa, `transcrever brutos/AUDIO.m4a --saida .projetos/NOME/fala` e `cortar brutos/AUDIO.m4a .projetos/NOME/fala/palavras.json --saida .projetos/NOME/corte` (um áudio sem vídeo vira vídeo preto com a voz).
+2. O fundo (`mo-fundo.html`) primeiro, do início ao fim; depois uma cena por frase, com `"marcas"` em cada palavra que entra (`python .ferramenta/sistema/editar.py palavras PALAVRAS.json DE ATE` dá as referências prontas). No `<style>` de cada cena, `<!--#inclui mo-base.css-->`; no `<script>`, `<!--#inclui mo-base.js-->` (palavra por palavra, cursor, digitação, entrada, emenda, impacto, saída). A última cena pode ficar até meio segundo depois da última palavra.
 3. `montar`, olhar os quadros, `renderizar`, `escutar`, `finalizar`.

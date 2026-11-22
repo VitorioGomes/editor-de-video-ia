@@ -11,7 +11,7 @@ O `montar` lê um `roteiro.json` com tudo o que entra por cima do vídeo: texto,
 - `"@CRM+0.4"`: 0,4 s depois da palavra (e `"@CRM#2-0.2"`, 0,2 s antes da segunda vez). Bom para um som ou um movimento que vem logo depois da fala.
 - A busca ignora maiúscula e acento: `"@Eu"` também acha o "eu" no meio da frase, e `"@e"` acha o "é". Por isso, **use o comando `palavras`** (abaixo), que já dá a referência certa de cada palavra.
 
-Prefira a palavra aos segundos: se o corte mudar, o texto continua entrando na hora da fala. Para não contar as repetições à mão, `python sistema/editar.py palavras PALAVRAS.json [DE ATE]` lista cada palavra com o tempo e a referência pronta (`@CRM#2`).
+Prefira a palavra aos segundos: se o corte mudar, o texto continua entrando na hora da fala. Para não contar as repetições à mão, `python .ferramenta/sistema/editar.py palavras PALAVRAS.json [DE ATE]` lista cada palavra com o tempo e a referência pronta (`@CRM#2`).
 
 ## Tela
 
@@ -50,7 +50,7 @@ Toda camada visível aceita `esconde_legenda: true` (a legenda some naquele trec
 
 ## Som
 
-Cada camada já traz um efeito sonoro padrão, variando para não repetir: clique para texto, whoosh para imagem e animação, dinheiro para valor com "R$", teclado para digitação, caneta para risco e círculo. Em qualquer camada, `"som": "id"` troca o efeito e `"som": false` tira. Num `bloco`, `"sons": [{"em": "@palavra", "id": "...", "ganho": -2}]` põe efeitos nos momentos da animação. **Atenção:** nos `"sons"` de um `bloco`, `"em"` com número conta **a partir do início da camada** (0,5 é meio segundo depois de ela entrar), e não do início do vídeo; com palavra (`"@clique"`), vale o tempo da fala. O `montar` avisa quando um efeito cai fora do vídeo. O catálogo está em `sistema/efeitos/catalogue.md`, e como escolher em `sistema/efeitos/GUIDE.md`. Uma camada `som` sozinha toca um efeito num momento: `{"tipo": "som", "em": "@porta", "id": "..."}`, ou um arquivo seu ou gerado com `efeito` (`"arquivo": "sons/porta.wav"`, nivelado sozinho, sem o pico passar de -6 dB antes do `ganho`); `"dura"` corta o som e `"ate": "@palavra"` faz ele acabar com a cena, sumindo em 0,4 s. Para tocar de novo, outra camada `som` (não há repetição automática: som contínuo só no trecho que pede).
+Cada camada já traz um efeito sonoro padrão, variando para não repetir: clique para texto, whoosh para imagem e animação, dinheiro para valor com "R$", teclado para digitação, caneta para risco e círculo. Em qualquer camada, `"som": "id"` troca o efeito e `"som": false` tira. Num `bloco`, `"sons": [{"em": "@palavra", "id": "...", "ganho": -2}]` põe efeitos nos momentos da animação. **Atenção:** nos `"sons"` de um `bloco`, `"em"` com número conta **a partir do início da camada** (0,5 é meio segundo depois de ela entrar), e não do início do vídeo; com palavra (`"@clique"`), vale o tempo da fala. O `montar` avisa quando um efeito cai fora do vídeo. O catálogo está em `.ferramenta/sistema/efeitos/catalogue.md`, e como escolher em `.ferramenta/sistema/efeitos/GUIDE.md`. Uma camada `som` sozinha toca um efeito num momento: `{"tipo": "som", "em": "@porta", "id": "..."}`, ou um arquivo seu ou gerado com `efeito` (`"arquivo": "sons/porta.wav"`, nivelado sozinho, sem o pico passar de -6 dB antes do `ganho`); `"dura"` corta o som e `"ate": "@palavra"` faz ele acabar com a cena, sumindo em 0,4 s. Para tocar de novo, outra camada `som` (não há repetição automática: som contínuo só no trecho que pede).
 
 ## Exemplo
 

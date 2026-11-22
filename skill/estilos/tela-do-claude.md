@@ -6,7 +6,7 @@ Vídeo só de animação, sem a pessoa em cena, sobre a voz: **o app do Claude, 
 
 ## A voz
 
-Gravada pela pessoa ou de IA (ver [voz-de-ia.md](../referencias/voz-de-ia.md)). **Gravada pela pessoa:** o áudio do celular (o gravador de voz serve; m4a, mp3 ou wav), posto em `editor/brutos/`. Ele passa pelo `transcrever` e pelo `cortar`, como um vídeo: saem as pausas, entra o tratamento de voz, e o vídeo de base é preto, com a duração exata da voz. O tempo de cada palavra é o da gravação. Com a voz dela, peça para gravar num ritmo animado: o estilo pede fala rápida. **Um pouco mais rápida que no Motion:** com voz de IA, `"velocidade": 1.08` no `meu-estilo/marca.json` (na velocidade normal, o estilo fica lento). Nomes em inglês (Cowork, Code, Haiku, Sonnet, Opus) vão para a pronúncia antes de gerar.
+Gravada pela pessoa ou de IA (ver [voz-de-ia.md](../referencias/voz-de-ia.md)). **Gravada pela pessoa:** o áudio do celular (o gravador de voz serve; m4a, mp3 ou wav), posto em `brutos/`. Ele passa pelo `transcrever` e pelo `cortar`, como um vídeo: saem as pausas, entra o tratamento de voz, e o vídeo de base é preto, com a duração exata da voz. O tempo de cada palavra é o da gravação. Com a voz dela, peça para gravar num ritmo animado: o estilo pede fala rápida. **Um pouco mais rápida que no Motion:** com voz de IA, `"velocidade": 1.08` no `meu-estilo/marca.json` (na velocidade normal, o estilo fica lento). Nomes em inglês (Cowork, Code, Haiku, Sonnet, Opus) vão para a pronúncia antes de gerar.
 
 ## Na tela
 
@@ -28,7 +28,7 @@ Sem música. Um efeito em cada ação: clique nos cliques do cursor, teclado na 
 
 ## Como montar
 
-1. A voz, já na velocidade do estilo, em `projetos/NOME/corte/` (`voz` com a de IA; `transcrever` e `cortar` com a gravada).
+1. A voz, já na velocidade do estilo, em `.projetos/NOME/corte/` (`voz` com a de IA; `transcrever` e `cortar` com a gravada).
 2. No `roteiro.json`, nesta ordem: `tc-fundo.html` (início ao fim), o gancho, `tc-hud.html` (do fim do gancho até o fim do conteúdo), `tc-titulo.html` (da primeira palavra até o fim), a cena do app, as cenas de fora do app e o final. Todas com `"som": false` e os efeitos em `"sons"`, porque o clique padrão de entrada de camada cairia em cima das ações.
 3. Em cada cena, `<!--#inclui tc-base.css-->` no `<style>` e, no `<script>`, `<!--#inclui mo-base.js-->` seguido de `<!--#inclui tc-base.js-->` (asterisco, mascote, cursor, palavra grande, ondas da voz).
 4. `montar`, olhar os quadros nas ações e nas emendas, `renderizar`, `finalizar`.

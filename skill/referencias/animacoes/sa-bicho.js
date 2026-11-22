@@ -181,7 +181,7 @@
   }
 
   // latido(t, picos, de): a abertura da boca no tempo t, com cada latido começando num dos picos (em s, contados de "de").
-  // Os picos saem de "python sistema/editar.py picos latido.wav"; "de" é quando o som começa no vídeo. Use em "boca" e no "achata".
+  // Os picos saem de "python .ferramenta/sistema/editar.py picos latido.wav"; "de" é quando o som começa no vídeo. Use em "boca" e no "achata".
   function latido(t, picos, de = 0) {
     let v = 0;
     for (const p of picos) { const d = t - de - p; if (d >= -0.03 && d < 0.32) v = Math.max(v, d < 0.05 ? (d + 0.03) / 0.08 : Math.exp(-(d - 0.05) * 9)); }

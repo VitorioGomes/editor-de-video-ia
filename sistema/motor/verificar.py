@@ -7,7 +7,9 @@ import shutil
 import subprocess
 import sys
 
-from .comum import EFEITOS, FONTES, HYPERFRAMES, MEU_ESTILO, RAIZ, npx
+from .comum import EDITAR as EDITAR_CMD, EFEITOS, FONTES, HYPERFRAMES, MEU_ESTILO, SISTEMA, chave_do_env, npx, rel
+
+REQ = rel(SISTEMA / "requisitos.txt")
 
 MAC = platform.system() == "Darwin"
 WIN = platform.system() == "Windows"
@@ -87,20 +89,20 @@ def verificar() -> None:
             __import__(modulo)
             linha(True, nome, "instalado")
         except ImportError:
-            linha(False, nome, "não instalado", f"{sys.executable} -m pip install -r sistema/requisitos.txt")
+            linha(False, nome, "não instalado", f"{sys.executable} -m pip install -r {REQ}")
     try:
         import yt_dlp  # noqa: F401
         linha(True, "yt-dlp", "baixa o vídeo de referência")
     except ImportError:
-        linha(False, "yt-dlp", "baixa o vídeo de referência", f"{sys.executable} -m pip install -r sistema/requisitos.txt")
+        linha(False, "yt-dlp", "baixa o vídeo de referência", f"{sys.executable} -m pip install -r {REQ}")
     try:
         from .referencia import _demucs
         _demucs()
         linha(True, "separador de voz", "mede a música e os efeitos da referência")
     except Exception:
         linha(False, "separador de voz", "mede a música e os efeitos da referência",
-              f"{sys.executable} -m pip install -r sistema/requisitos.txt e depois "
-              f"{sys.executable} -m pip install --no-deps -r sistema/requisitos-separador.txt")
+              f"{sys.executable} -m pip install -r {REQ} e depois "
+              f"{sys.executable} -m pip install --no-deps -r {rel(SISTEMA / 'requisitos-separador.txt')}")
 
     from .comum import config
     from .transcricao import INSTALAR_PLACA, placa
@@ -138,10 +140,12 @@ def verificar() -> None:
           + ("brew install --cask blender" if MAC else "winget install BlenderFoundation.Blender")
           + " (ou blender.org, versão 4.2 ou mais nova). Em outro lugar, defina BLENDER com o caminho do executável",
           opcional=True)
-    env = RAIZ / ".env"
-    tem_voz = env.exists() and "ELEVENLABS_API_KEY=" in env.read_text(encoding="utf-8", errors="replace")
+    tem_voz = bool(os.environ.get("ELEVENLABS_API_KEY") or chave_do_env("ELEVENLABS_API_KEY"))
     linha(tem_voz, "voz de IA (opcional)", "ElevenLabs, com a chave da pessoa no .env",
-          "Só para vídeo com voz de IA: ELEVENLABS_API_KEY=... no arquivo .env da pasta principal", opcional=True)
+          "Só para vídeo com voz de IA: ELEVENLABS_API_KEY=... no arquivo .env da pasta do editor", opcional=True)
+    from .pastas import formato_antigo
+    if formato_antigo():
+        print(f"\nINSTALAÇÃO NO FORMATO ANTIGO: rode {EDITAR_CMD} comecar --migrar (não perde nada).")
 
     if faltas:
         print("\nFalta instalar:")

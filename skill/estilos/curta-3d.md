@@ -8,15 +8,15 @@ Os quadros acima são do vídeo do graphify ("O Claude não se perde por burrice
 
 Vídeo só de animação, sobre a voz da pessoa (gravada ou de IA): um **curta num mundo 3D de brinquedo com acabamento de filme**. Tem contorno fino nas peças, fundo desfocado, brilho só no que acende, sombra de contato, cor tratada e uma câmera que nunca para: ela corta entre os blocos, desliza e sacode nos impactos. Cada vídeo é **uma metáfora num mundo de maquete**: no vídeo do `/btw` do Vitório, uma ferrovia de brinquedo num fim de tarde, em que o trem é a conversa e o Claude dirige a locomotiva. Serve bem para vídeo que ensina uma ferramenta ou um conceito em 40 a 70 s.
 
-**Diferente dos outros estilos**, este não passa pelo `montar` do HyperFrames. A cena é montada no three.js e gravada pelo **Remotion**, num projeto próprio em `projetos/NOME/`, copiado do molde do kit. A voz, a legenda, os efeitos sonoros, a régua de volume, a escuta e o `finalizar` são os mesmos do produto.
+**Diferente dos outros estilos**, este não passa pelo `montar` do HyperFrames. A cena é montada no three.js e gravada pelo **Remotion**, num projeto próprio em `.projetos/NOME/`, copiado do molde do kit. A voz, a legenda, os efeitos sonoros, a régua de volume, a escuta e o `finalizar` são os mesmos do produto.
 
 ## O kit
 
-Fica em `skill/referencias/curta3d/`:
+Fica em `.ferramenta/skill/referencias/curta3d/`:
 
 | Pasta | O que tem |
 |---|---|
-| `molde/` | O projeto-modelo do Remotion, para copiar para `projetos/NOME/`. O motor fica em `src/motor/` (não mexa). O vídeo fica em `src/cena.tsx` (aceita JSX, para os cartões), o único arquivo que muda de um vídeo para outro. Ele vem com o exemplo do curta comum; o do Estilo Conversa está em `exemplos/conversa.tsx` (copie por cima do `src/cena.tsx`) |
+| `molde/` | O projeto-modelo do Remotion, para copiar para `.projetos/NOME/`. O motor fica em `src/motor/` (não mexa). O vídeo fica em `src/cena.tsx` (aceita JSX, para os cartões), o único arquivo que muda de um vídeo para outro. Ele vem com o exemplo do curta comum; o do Estilo Conversa está em `exemplos/conversa.tsx` (copie por cima do `src/cena.tsx`) |
 | `pecas/glb/` | As peças 3D prontas, uma por arquivo |
 | `pecas/imagens/` | Uma imagem de cada peça, no acabamento do estilo |
 | `pecas/blender/` | `estilo.py`, com a paleta e as ferramentas de modelagem, e `pecas.py`, com o script que gera cada peça do kit |
@@ -86,11 +86,11 @@ Todas em metros, na escala real, com o pivô no chão e a frente para +Z. Na lis
 ## Como montar um vídeo
 
 1. **O roteiro, a metáfora e o cenário.** Escolha um mundo de maquete que explique a ideia (a ferrovia, uma cidade, um escritório, uma fábrica) e o papel de cada coisa: no `/btw`, trem = conversa, vagão = mensagem, agulha = desviar. Uma metáfora por vídeo. **Escolha o cenário junto com a metáfora** (ver "O cenário", abaixo). Escreva o roteiro com [roteiro.md](../referencias/roteiro.md).
-2. **A voz,** em `projetos/NOME/corte/`:
-   - **gravada pela pessoa,** uma voz só: `transcrever editor/brutos/AUDIO.m4a --saida projetos/NOME/fala` e `cortar editor/brutos/AUDIO.m4a projetos/NOME/fala/palavras.json --saida projetos/NOME/corte` (sai o `voz.wav` sem as pausas e o `palavras.json` com o tempo de cada palavra); com personagens (o Conversa), `falas-gravadas` (ver "As vozes", no Estilo Conversa);
-   - **de IA:** `python sistema/editar.py voz projetos/NOME/texto.txt --saida projetos/NOME/corte` (ver [voz-de-ia.md](../referencias/voz-de-ia.md); custa créditos, peça o sim). O texto sem `[nome]` no começo usa a voz de `"vozes": {"narrador": {...}}` do `meu-estilo/marca.json` (ou o `"voz"`, se houver).
-3. **O projeto.** Copie `skill/referencias/curta3d/molde/` para `projetos/NOME/`. Se o projeto ficar fora da pasta do editor, ponha em `"editor"` o caminho dela. No `curta.json`, a `"fala"` já aponta para `corte` (a voz do passo 2, na mesma pasta); ponha as palavras em `destaques` da legenda e, se quiser, a lista de `pecas` (o padrão, `"todas"`, também funciona). Dentro de `projetos/NOME/`, rode `npm install`. Na primeira vez ele baixa uns 650 MB, e o tempo depende da internet; nas outras, leva uns 20 s, porque usa o cache. O Node já vem com o produto. Para conferir os tipos, use `npm run tsc`: ele roda o `preparar.mjs` antes. O `npx tsc` sozinho, num projeto novo, falha até o primeiro `preparar`, porque falta a pasta `src/gerado/`.
-4. **O plano de movimento vem antes da cena.** Escreva `projetos/NOME/movimento.md` (passo 3 de "Montar" do [EDITAR.md](../EDITAR.md)) antes da primeira linha do `cena.ts`: uma linha por plano, com o que é o principal e os princípios que entram. Sem ele, não comece a animar. Na conferência dos quadros, cada linha dele é conferida no quadro.
+2. **A voz,** em `.projetos/NOME/corte/`:
+   - **gravada pela pessoa,** uma voz só: `transcrever brutos/AUDIO.m4a --saida .projetos/NOME/fala` e `cortar brutos/AUDIO.m4a .projetos/NOME/fala/palavras.json --saida .projetos/NOME/corte` (sai o `voz.wav` sem as pausas e o `palavras.json` com o tempo de cada palavra); com personagens (o Conversa), `falas-gravadas` (ver "As vozes", no Estilo Conversa);
+   - **de IA:** `python .ferramenta/sistema/editar.py voz .projetos/NOME/texto.txt --saida .projetos/NOME/corte` (ver [voz-de-ia.md](../referencias/voz-de-ia.md); custa créditos, peça o sim). O texto sem `[nome]` no começo usa a voz de `"vozes": {"narrador": {...}}` do `meu-estilo/marca.json` (ou o `"voz"`, se houver).
+3. **O projeto.** Copie `.ferramenta/skill/referencias/curta3d/molde/` para `.projetos/NOME/`. Se o projeto ficar fora da pasta do editor, ponha em `"editor"` o caminho dela. No `curta.json`, a `"fala"` já aponta para `corte` (a voz do passo 2, na mesma pasta); ponha as palavras em `destaques` da legenda e, se quiser, a lista de `pecas` (o padrão, `"todas"`, também funciona). Dentro de `.projetos/NOME/`, rode `npm install`. Na primeira vez ele baixa uns 650 MB, e o tempo depende da internet; nas outras, leva uns 20 s, porque usa o cache. O Node já vem com o produto. Para conferir os tipos, use `npm run tsc`: ele roda o `preparar.mjs` antes. O `npx tsc` sozinho, num projeto novo, falha até o primeiro `preparar`, porque falta a pasta `src/gerado/`.
+4. **O plano de movimento vem antes da cena.** Escreva `.projetos/NOME/movimento.md` (passo 3 de "Montar" do [EDITAR.md](../EDITAR.md)) antes da primeira linha do `cena.ts`: uma linha por plano, com o que é o principal e os princípios que entram. Sem ele, não comece a animar. Na conferência dos quadros, cada linha dele é conferida no quadro.
 5. **A cena** em `src/cena.tsx`. O molde traz um exemplo de curta comum para ler antes de escrever; para o Estilo Conversa, comece pelo `exemplos/conversa.tsx` (dois personagens no terraço, o diálogo, um cartão e a régua). Ela exporta:
    - `cena.construir`: monta o mundo uma vez (chão, natureza, peças, textos);
    - `cena.posar(f)`: diz, a cada quadro, onde está cada coisa, além da câmera, do foco e do desfoque;
@@ -100,7 +100,7 @@ Todas em metros, na escala real, com o pivô no chão e a frente para +Z. Na lis
    - `SEM_LEGENDA`: os trechos sem legenda;
    - no Estilo Conversa, também `CARTOES`, `LEGENDA_Y` e `REGUA` (ver "Estilo Conversa").
 
-   O tempo sai da fala: `q("palavra", n, antes)` é o quadro da n-ésima vez que a palavra aparece, adiantado `antes` quadros. A imagem chega de 0 a 3 quadros antes da palavra. A comparação é da palavra inteira, sem maiúscula nem pontuação ("chama" não casa com "chamada"), e aceita uma sequência (`q("se chama")`). Para ver cada palavra com o número da vez (o `n`), rode `python sistema/editar.py palavras projetos/NOME/corte/palavras.json`.
+   O tempo sai da fala: `q("palavra", n, antes)` é o quadro da n-ésima vez que a palavra aparece, adiantado `antes` quadros. A imagem chega de 0 a 3 quadros antes da palavra. A comparação é da palavra inteira, sem maiúscula nem pontuação ("chama" não casa com "chamada"), e aceita uma sequência (`q("se chama")`). Para ver cada palavra com o número da vez (o `n`), rode `python .ferramenta/sistema/editar.py palavras .projetos/NOME/corte/palavras.json`.
 6. **Conferir os quadros:** `node scripts/quadros.mjs 1.2,3.5,6.0` (os segundos do vídeo). Sem `--guias`, os quadros saem em 540 x 960 (metade, mais rápido); com `--guias`, em 1080 x 1920, para ler as faixas em px de verdade. As imagens ficam em `out/quadros/`. A montagem leva uns 30 s, e cada quadro de 5 a 20 s (num cenário com muita peça, como o depósito, 17 quadros levaram uns 7 min). Confira com o `movimento.md` aberto e corrija até ficar bom. Depois do render, `node scripts/folha.mjs` monta a folha de quadros (12 quadros do vídeo inteiro, em `out/folha.jpg`; `--n 18 --colunas 6` muda a grade).
 7. **Renderizar:**
    - `node scripts/render.mjs` grava `out/render.mp4` e `out/deixas.json`. Num PC com placa de vídeo, um vídeo de 72 a 78 s leva uns 220 a 240 s num cenário leve (uns 3 s por segundo de vídeo) e uns 330 s no depósito, com muitas peças e luzes (uns 4,5 s por segundo);
@@ -109,9 +109,9 @@ Todas em metros, na escala real, com o pivô no chão e a frente para +Z. Na lis
    - o progresso sai no terminal e em `out/progresso.txt` (para quem roda em segundo plano).
 8. **Escutar:**
    - `node scripts/render.mjs --sem-efeitos --rascunho` grava `out/sem.mp4` (a escuta só usa o áudio, então o rascunho, em metade do tamanho, serve: o áudio sai alinhado com o do render cheio, conferido no vídeo do graphify);
-   - depois, da pasta principal, `python sistema/editar.py escutar projetos/NOME/out/sem.mp4 projetos/NOME/out/render.mp4 projetos/NOME/out/deixas.json`.
+   - depois, da pasta do editor, `python .ferramenta/sistema/editar.py escutar .projetos/NOME/out/sem.mp4 .projetos/NOME/out/render.mp4 .projetos/NOME/out/deixas.json`.
 9. **Conferir antes de mostrar** (a seção abaixo): `node scripts/conferir.mjs` e a lista, nas folhas que ele monta. **A primeira versão que alguém vê já passou por ela.**
-10. **Finalizar:** `python sistema/editar.py finalizar projetos/NOME/out/render.mp4`. A versão para a pessoa assistir sai em `editor/versoes/NOME-vN.mp4`; aprovada, `aprovar` leva para `editor/editados/`.
+10. **Finalizar:** `python .ferramenta/sistema/editar.py finalizar .projetos/NOME/out/render.mp4`. A versão para a pessoa assistir sai em `versoes/NOME-vN.mp4`; aprovada, `aprovar` leva para `editados/`.
 
 Para ver o vídeo no navegador enquanto cria, use `npm run studio`.
 
@@ -299,7 +299,7 @@ Os [princípios de movimento](../referencias/animacoes.md#princípios-de-movimen
 Use o kit primeiro. Muita coisa sai de uma peça do kit com outra cor (`peca(kit, "pessoa", { cores: { roupa: "#c84b3c" } })`), de duas peças juntas (o computador na mesa) ou das peças do three.js (uma caixa com texto). **Fabrique uma peça nova quando o vídeo pede um objeto que é o assunto da frase** e que não sai disso: o produto que o vídeo mostra, um animal, um veículo, uma máquina da metáfora.
 
 1. O Blender é gratuito (blender.org). Ele só é preciso para peça nova; as do kit já vêm prontas.
-2. Copie `blender/peca_nova.py` do projeto, troque o `NOME` e a função `construir`, e rode `node scripts/blender.mjs blender/minha_peca.py`. Leva segundos. A peça sai em `projetos/NOME/pecas/` e entra no vídeo sozinha; se tiver o nome de uma peça do kit, vale por cima dela.
+2. Copie `blender/peca_nova.py` do projeto, troque o `NOME` e a função `construir`, e rode `node scripts/blender.mjs blender/minha_peca.py`. Leva segundos. A peça sai em `.projetos/NOME/pecas/` e entra no vídeo sozinha; se tiver o nome de uma peça do kit, vale por cima dela.
 3. As regras estão no começo do `estilo.py`:
    - metros e escala real;
    - pivô no chão (o `exportar` assenta a peça sozinho e mostra o tamanho);
@@ -333,7 +333,7 @@ Sem música. **Todo contato tem som**: pulo, pouso, passo de corrida, caixa, tam
   - o `ganho` de cada efeito e o `"efeitos": {"ganho": 0}` do `curta.json` ajustam por cima.
 - **Confira com o `escutar`, e no celular, com som.** A coluna "pico-voz" do `escutar` compara com a voz naquele instante. Quando o efeito cai numa pausa, ela dá um número alto que não quer dizer nada: compare com a fala em geral, que o `preparar` mostra em `src/gerado/config.json` (`"voz"`).
 - **Som curtíssimo não toca:** no vídeo do graphify, o `click-button-firm` (20 ms) saiu mudo no render (a escuta deu AUSENTE). Use um clique com mais corpo, como o `click-mouse-firm`, e confira na escuta.
-- **Arquivos próprios:** os sons que o kit não tem vão em `projetos/NOME/sons/` e entram como `"sons/arquivo.wav"`, também na régua. Para gerar um, use `python sistema/editar.py efeito "descrição em inglês" --saida projetos/NOME/sons/nome.wav`.
+- **Arquivos próprios:** os sons que o kit não tem vão em `.projetos/NOME/sons/` e entram como `"sons/arquivo.wav"`, também na régua. Para gerar um, use `python .ferramenta/sistema/editar.py efeito "descrição em inglês" --saida .projetos/NOME/sons/nome.wav`.
 
 ## Estilo Conversa
 
@@ -387,7 +387,7 @@ O roteiro é uma conversa de verdade: cada fala responde à anterior, e a dúvid
   ![Os bichos e a criança falando e piscando](imagens/conversa-bichos.jpg)
   ![Os gestos, o cacheado e a criança ao lado do adulto](imagens/conversa-gestos.jpg)
   ![O robô falando, com emoção e piscando](imagens/conversa-robo.jpg)
-- **As vozes:** cada fala numa linha, com `[nome]` no começo, e `[pausa 0.5]` onde a conversa respira. O `"vozes"` do `meu-estilo/marca.json` leva uma voz para cada nome (`[claude]`, `[gato]`, `[cliente]`): para o Claude, uma voz calma e um pouco mais aguda que a da pessoa; para um personagem novo, escolha uma voz no catálogo da ElevenLabs (ver [voz-de-ia.md](../referencias/voz-de-ia.md)) e **teste com uma frase curta dele antes de gerar a conversa inteira**: a voz de um gato, de um robô ou de uma criança que não convence estraga o vídeo todo. A palavra da tela (`/clear`, `CLAUDE.md`) vai no texto como aparece; o jeito de falar ("barra clír") vai no `pronuncia.md`, ao lado do texto. Depois de gerar, transcreva as falas com comandos para conferir. **Com a voz da pessoa** (ou de quem ela chamar para o outro personagem), o mesmo texto marcado vai para `python sistema/editar.py falas-gravadas projetos/NOME/texto.txt AUDIOS... --saida projetos/NOME/corte`: um áudio só com as duas vozes, lido na ordem do texto (quem fala sai da ordem das falas); um áudio por personagem, com o nome dele no arquivo (`eu.m4a`, `claude.m4a`, iguais aos nomes entre colchetes); ou um por fala, na ordem (o mais seguro numa conversa longa). Sai o mesmo `palavras.json`, com `quem` e `fala`, e as duas vozes no mesmo volume. O `palavras.json` sai com `quem` e `fala` em cada palavra, e o motor usa isso para a boca, para a câmera e para a legenda.
+- **As vozes:** cada fala numa linha, com `[nome]` no começo, e `[pausa 0.5]` onde a conversa respira. O `"vozes"` do `meu-estilo/marca.json` leva uma voz para cada nome (`[claude]`, `[gato]`, `[cliente]`): para o Claude, uma voz calma e um pouco mais aguda que a da pessoa; para um personagem novo, escolha uma voz no catálogo da ElevenLabs (ver [voz-de-ia.md](../referencias/voz-de-ia.md)) e **teste com uma frase curta dele antes de gerar a conversa inteira**: a voz de um gato, de um robô ou de uma criança que não convence estraga o vídeo todo. A palavra da tela (`/clear`, `CLAUDE.md`) vai no texto como aparece; o jeito de falar ("barra clír") vai no `pronuncia.md`, ao lado do texto. Depois de gerar, transcreva as falas com comandos para conferir. **Com a voz da pessoa** (ou de quem ela chamar para o outro personagem), o mesmo texto marcado vai para `python .ferramenta/sistema/editar.py falas-gravadas .projetos/NOME/texto.txt AUDIOS... --saida .projetos/NOME/corte`: um áudio só com as duas vozes, lido na ordem do texto (quem fala sai da ordem das falas); um áudio por personagem, com o nome dele no arquivo (`eu.m4a`, `claude.m4a`, iguais aos nomes entre colchetes); ou um por fala, na ordem (o mais seguro numa conversa longa). Sai o mesmo `palavras.json`, com `quem` e `fala`, e as duas vozes no mesmo volume. O `palavras.json` sai com `quem` e `fala` em cada palavra, e o motor usa isso para a boca, para a câmera e para a legenda.
 - **O boneco da pessoa:**
   - é a peça `boneco`, de blocos, com rosto que fala, montada por uma ficha (`motor/rosto.ts`): `boneco(kit, { pele, cabelo: "padrao" | "curto" | "topete" | "longo" | "coque" | "cacheado" | "careca", corCabelo, cilios, idade, oculos, corOculos, barba, bigode, bone, corBone, fone, corFone, peito, corPeito, roupa, detalheRoupa, calca, sapato })`;
   - **todo personagem fixo precisa de uma marca que mude a silhueta**, como o boné da referência: um acessório grande (o `fone` no pescoço, o `bone`) na cor da marca, e algo escrito ou bordado no peito (`peito: "IA"`);
@@ -478,4 +478,4 @@ O roteiro é uma conversa de verdade: cada fala responde à anterior, e a dúvid
 
 ## Licença do Remotion
 
-O Remotion é gratuito para pessoa física e para empresa de até 3 funcionários. **Empresa maior precisa comprar a licença do Remotion** (remotion.pro). O three.js, o Blender e os pacotes de acabamento são livres. O código de acabamento (contorno, desfoque, tratamento de cor e câmera) vem da skill cartoon-3d-short, sob a licença MIT (© 2026 Mr omi), e o aviso dela está em `skill/referencias/curta3d/LICENCA-cartoon-3d-short.txt`.
+O Remotion é gratuito para pessoa física e para empresa de até 3 funcionários. **Empresa maior precisa comprar a licença do Remotion** (remotion.pro). O three.js, o Blender e os pacotes de acabamento são livres. O código de acabamento (contorno, desfoque, tratamento de cor e câmera) vem da skill cartoon-3d-short, sob a licença MIT (© 2026 Mr omi), e o aviso dela está em `.ferramenta/skill/referencias/curta3d/LICENCA-cartoon-3d-short.txt`.

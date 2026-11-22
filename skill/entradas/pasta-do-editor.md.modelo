@@ -1,0 +1,5 @@
+# Editor de vídeo com IA
+
+Esta pasta é do editor de vídeo com IA. Para editar um vídeo, ou qualquer pedido sobre os vídeos daqui, **leia `.ferramenta/skill/EDITAR.md` e siga aquele roteiro**. Ele é o mesmo para o Claude Code, o Codex e o Gemini CLI, e é a única fonte: não improvise um caminho seu.
+
+Os comandos rodam de dentro desta pasta. O que é da pessoa: `brutos/`, `versoes/`, `editados/`, `meu-estilo/` e `roteiros/`.

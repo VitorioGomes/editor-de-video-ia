@@ -28,7 +28,7 @@ A parede lisa atrás da pessoa vira um pôster: palavras gigantes ficam **atrás
 - **Atrás é o padrão, e grande.** A palavra coberta um pouco embaixo não tem problema, desde que dê para ler no vídeo mudo.
 - **Tudo atrás o mais alto possível**, sem passar de 220 px do topo.
 - **Na frente só quando não cabe atrás**, como uma lista no meio do corpo. Pôr tudo na frente tira a graça do estilo.
-- **Meça antes de mostrar:** `python sistema/editar.py parede PROJETO recorte.webm` diz quanto de cada texto a pessoa cobre. O que passa de uns 25% em média, ou some no pior quadro, sobe, muda de lugar ou, em último caso, vai para a frente. `parede-livre recorte.webm DE ATE` mostra onde a parede fica livre num trecho.
+- **Meça antes de mostrar:** `python .ferramenta/sistema/editar.py parede PROJETO recorte.webm` diz quanto de cada texto a pessoa cobre. O que passa de uns 25% em média, ou some no pior quadro, sobe, muda de lugar ou, em último caso, vai para a frente. `parede-livre recorte.webm DE ATE` mostra onde a parede fica livre num trecho.
 
 ## Som
 
@@ -37,7 +37,7 @@ Clique em cada palavra que entra, whoosh nas etiquetas e nos quadros, batida gra
 ## Como montar
 
 1. Corte normal (`tentativas` se houver repetições, `transcrever`, `cortar`).
-2. `python sistema/editar.py recortar PASTA/corte/base.mp4 --saida PROJETO_FONTE/recorte.webm`. Demora uns 15 a 20 minutos para 80 s de vídeo: avise a pessoa antes e vá criando as animações enquanto roda.
+2. `python .ferramenta/sistema/editar.py recortar PASTA/corte/base.mp4 --saida PROJETO_FONTE/recorte.webm`. Demora uns 15 a 20 minutos para 80 s de vídeo: avise a pessoa antes e vá criando as animações enquanto roda.
 3. No `roteiro.json`: `"recorte": "recorte.webm"`, `"atras": true` nas camadas da parede, camadas `zoom`, e `"legenda": {"classe": "leg-grande", "x": 0, "largura": 1080, "y": 1250, "destaques": [...]}`.
 4. `montar`, olhar os quadros, `parede`, `renderizar`, `escutar`, `finalizar`.
 

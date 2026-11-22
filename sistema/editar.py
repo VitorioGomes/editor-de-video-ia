@@ -1,46 +1,55 @@
 """Editor de vídeo com IA: todos os comandos, numa porta só.
 
-  python sistema/editar.py verificar
-      Confere a instalação e diz o que falta.
-  python sistema/editar.py comecar [--migrar]
-      Cria as pastas (editor/brutos, editor/versoes, editor/editados, projetos, meu-estilo). Não mexe no que existe.
+Todos os comandos rodam de dentro da pasta do editor (a que tem a .ferramenta/), e os caminhos são relativos a ela.
 
-As pastas: o bruto vem de editor/brutos/, o trabalho de cada vídeo fica em projetos/NOME/, cada versão para
-assistir vai para editor/versoes/NOME-vN.mp4 e a aprovada, para editor/editados/NOME.mp4.
+  python .ferramenta/sistema/editar.py verificar
+      Confere a instalação e diz o que falta.
+  python .ferramenta/sistema/editar.py comecar
+      Cria as pastas (brutos, versoes, editados, meu-estilo, roteiros e .projetos), as portas de entrada e, se a
+      pasta estiver num repositório Git, o .gitignore do backup. Não mexe no que existe.
+  python sistema/editar.py comecar --migrar
+      Leva a instalação antiga (os arquivos da pessoa dentro do clone) para o formato novo, sem perder nada.
+  python .ferramenta/sistema/editar.py atualizar
+      Baixa a versão nova da ferramenta (git pull). Os arquivos da pessoa não mudam.
+  python .ferramenta/sistema/editar.py catalogo
+      Abre o catálogo dos estilos no navegador.
+
+As pastas: o bruto vem de brutos/, o trabalho de cada vídeo fica em .projetos/NOME/, cada versão para assistir
+vai para versoes/NOME-vN.mp4 e a aprovada, para editados/NOME.mp4. O roteiro aprovado fica em roteiros/NOME.md.
 
 Gravação com várias tentativas (repetições, frases pela metade):
-  python sistema/editar.py tentativas listar BRUTO --saida PASTA [--vocabulario "..."]
-  python sistema/editar.py tentativas detalhar PASTA 56.1 62.5 [mais pares início fim]
-  python sistema/editar.py tentativas conferir PASTA/escolhas.json
-  python sistema/editar.py tentativas cortar PASTA/escolhas.json --saida base_longa.mp4
+  python .ferramenta/sistema/editar.py tentativas listar BRUTO --saida PASTA [--vocabulario "..."]
+  python .ferramenta/sistema/editar.py tentativas detalhar PASTA 56.1 62.5 [mais pares início fim]
+  python .ferramenta/sistema/editar.py tentativas conferir PASTA/escolhas.json
+  python .ferramenta/sistema/editar.py tentativas cortar PASTA/escolhas.json --saida base_longa.mp4
 
 Do vídeo ao projeto:
-  python sistema/editar.py transcrever VIDEO --saida PASTA [--vocabulario "Claude Code, skill"]
-  python sistema/editar.py cortar VIDEO PASTA/palavras.json --saida PASTA/corte [--manter-ate 0.4] [--trocas trocas.json]
-  python sistema/editar.py voz TEXTO.txt --saida PASTA                    (vídeo só com voz de IA, opcional; [nome] na linha = voz do personagem)
-  python sistema/editar.py falas-gravadas TEXTO.txt AUDIO [AUDIO ...] --saida PASTA   (as falas gravadas pela pessoa, no lugar da voz de IA,
+  python .ferramenta/sistema/editar.py transcrever VIDEO --saida PASTA [--vocabulario "Claude Code, skill"]
+  python .ferramenta/sistema/editar.py cortar VIDEO PASTA/palavras.json --saida PASTA/corte [--manter-ate 0.4] [--trocas trocas.json]
+  python .ferramenta/sistema/editar.py voz TEXTO.txt --saida PASTA                    (vídeo só com voz de IA, opcional; [nome] na linha = voz do personagem)
+  python .ferramenta/sistema/editar.py falas-gravadas TEXTO.txt AUDIO [AUDIO ...] --saida PASTA   (as falas gravadas pela pessoa, no lugar da voz de IA,
                                                                           com personagens: um áudio só, um por personagem ou um por fala)
-  python sistema/editar.py efeito "descrição em inglês" --saida PASTA/sons/nome.wav [--segundos 4]   (som de história gerado na ElevenLabs)
-  python sistema/editar.py recortar PASTA/corte/base.mp4 --saida PASTA/recorte.webm
-  python sistema/editar.py palavras PALAVRAS.json [DE ATE]                (cada palavra com o tempo e a referência @palavra#n)
-  python sistema/editar.py retempo VIDEO PALAVRAS.json DE ATE [--so-mostrar]   (acerta pelo som o tempo de número, ano e valor)
-  python sistema/editar.py falas PALAVRAS.json                           (cada fala com o número, o tempo e quem fala)
-  python sistema/editar.py picos SOM.wav [--limite -30]                  (quando cada latido, batida ou tosse começa no arquivo)
-  python sistema/editar.py montar BASE.mp4 PALAVRAS.json ROTEIRO.json --saida PROJETO [--sem-efeitos]
+  python .ferramenta/sistema/editar.py efeito "descrição em inglês" --saida PASTA/sons/nome.wav [--segundos 4]   (som de história gerado na ElevenLabs)
+  python .ferramenta/sistema/editar.py recortar PASTA/corte/base.mp4 --saida PASTA/recorte.webm
+  python .ferramenta/sistema/editar.py palavras PALAVRAS.json [DE ATE]                (cada palavra com o tempo e a referência @palavra#n)
+  python .ferramenta/sistema/editar.py retempo VIDEO PALAVRAS.json DE ATE [--so-mostrar]   (acerta pelo som o tempo de número, ano e valor)
+  python .ferramenta/sistema/editar.py falas PALAVRAS.json                           (cada fala com o número, o tempo e quem fala)
+  python .ferramenta/sistema/editar.py picos SOM.wav [--limite -30]                  (quando cada latido, batida ou tosse começa no arquivo)
+  python .ferramenta/sistema/editar.py montar BASE.mp4 PALAVRAS.json ROTEIRO.json --saida PROJETO [--sem-efeitos]
 
 Estilo novo a partir de um vídeo de referência (engenharia reversa):
-  python sistema/editar.py referencia analisar LINK_OU_ARQUIVO --saida projetos/referencias/NOME
-  python sistema/editar.py referencia quadros PASTA 12.5 20.2              (quadros em tamanho cheio)
-  python sistema/editar.py referencia comparar PASTA VIDEO_EDITADO.mp4 --saida PASTA/comparacao
+  python .ferramenta/sistema/editar.py referencia analisar LINK_OU_ARQUIVO --saida .projetos/referencias/NOME
+  python .ferramenta/sistema/editar.py referencia quadros PASTA 12.5 20.2              (quadros em tamanho cheio)
+  python .ferramenta/sistema/editar.py referencia comparar PASTA VIDEO_EDITADO.mp4 --saida PASTA/comparacao
 
 Conferir e entregar:
-  python sistema/editar.py renderizar projetos/NOME/montagem [--saida projetos/NOME/render.mp4] [--rascunho]
-  python sistema/editar.py escutar SEM_EFEITOS.mp4 COM_EFEITOS.mp4 PROJETO/deixas.json
-  python sistema/editar.py parede PROJETO recorte.webm                    (texto atrás da pessoa está visível?)
-  python sistema/editar.py parede-livre recorte.webm DE ATE               (onde a parede fica livre)
-  python sistema/editar.py titulos PROJETO VIDEO [--recorte recorte.webm]   (títulos no alto: cabeça, área e tamanho)
-  python sistema/editar.py finalizar projetos/NOME/render.mp4            (volume das redes e conferência; sai em editor/versoes/NOME-vN.mp4)
-  python sistema/editar.py aprovar editor/versoes/NOME-vN.mp4             (a versão aprovada vai para editor/editados/NOME.mp4)
+  python .ferramenta/sistema/editar.py renderizar .projetos/NOME/montagem [--saida .projetos/NOME/render.mp4] [--rascunho]
+  python .ferramenta/sistema/editar.py escutar SEM_EFEITOS.mp4 COM_EFEITOS.mp4 PROJETO/deixas.json
+  python .ferramenta/sistema/editar.py parede PROJETO recorte.webm                    (texto atrás da pessoa está visível?)
+  python .ferramenta/sistema/editar.py parede-livre recorte.webm DE ATE               (onde a parede fica livre)
+  python .ferramenta/sistema/editar.py titulos PROJETO VIDEO [--recorte recorte.webm]   (títulos no alto: cabeça, área e tamanho)
+  python .ferramenta/sistema/editar.py finalizar .projetos/NOME/render.mp4            (volume das redes e conferência; sai em versoes/NOME-vN.mp4)
+  python .ferramenta/sistema/editar.py aprovar versoes/NOME-vN.mp4             (a versão aprovada vai para editados/NOME.mp4)
 """
 from __future__ import annotations
 
@@ -58,7 +67,9 @@ def main() -> None:
     sub = ap.add_subparsers(dest="acao", required=True)
     sub.add_parser("verificar")
     x = sub.add_parser("comecar")
-    x.add_argument("--migrar", action="store_true", help="leva os pronto.mp4 de videos/ para editor/editados/")
+    x.add_argument("--migrar", action="store_true", help="leva a instalação antiga para o formato novo, sem perder nada")
+    sub.add_parser("atualizar")
+    sub.add_parser("catalogo")
     x = sub.add_parser("aprovar")
     x.add_argument("versao", type=Path)
     x = sub.add_parser("falas-gravadas")
@@ -134,7 +145,7 @@ def main() -> None:
 
     x = sub.add_parser("titulos")
     x.add_argument("projeto", type=Path)
-    x.add_argument("video", type=Path, help="o corte (projetos/NOME/corte/base.mp4)")
+    x.add_argument("video", type=Path, help="o corte (.projetos/NOME/corte/base.mp4)")
     x.add_argument("--recorte", type=Path, help="o recorte.webm, se já existir (senão faz um rápido)")
     x.add_argument("--margem", type=float, default=150, help="distância mínima das laterais, em px")
 
@@ -160,7 +171,7 @@ def main() -> None:
 
     x = sub.add_parser("renderizar")
     x.add_argument("projeto", type=Path)
-    x.add_argument("--saida", type=Path, help="padrão: render.mp4 ao lado da montagem, em projetos/NOME/")
+    x.add_argument("--saida", type=Path, help="padrão: render.mp4 ao lado da montagem, em .projetos/NOME/")
     x.add_argument("--rascunho", action="store_true", help="mais rápido, qualidade menor")
 
     x = sub.add_parser("escutar")
@@ -180,7 +191,7 @@ def main() -> None:
 
     x = sub.add_parser("finalizar")
     x.add_argument("video", type=Path)
-    x.add_argument("--saida", type=Path, help="padrão: editor/versoes/NOME-vN.mp4, a próxima versão")
+    x.add_argument("--saida", type=Path, help="padrão: versoes/NOME-vN.mp4, a próxima versão")
 
     a = ap.parse_args()
     if a.acao == "verificar":
@@ -189,6 +200,12 @@ def main() -> None:
     elif a.acao == "comecar":
         from motor.pastas import comecar
         comecar(a.migrar)
+    elif a.acao == "atualizar":
+        from motor.pastas import atualizar
+        atualizar()
+    elif a.acao == "catalogo":
+        from motor.pastas import abrir_catalogo
+        abrir_catalogo()
     elif a.acao == "aprovar":
         from motor.pastas import aprovar
         aprovar(a.versao.resolve())

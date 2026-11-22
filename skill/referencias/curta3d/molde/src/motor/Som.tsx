@@ -28,7 +28,7 @@ export const tipoDe = (s: Info): Tipo => {
 const hash = (t: string) => { let h = 7; for (const c of t) h = (h * 31 + c.charCodeAt(0)) | 0; return h; };
 const calcular = (e: Efeito) => {
   const s = C.efeitos[e.id];
-  if (!s) throw new Error(`efeito sem preparar: ${e.id}. Confira o nome em sistema/efeitos/catalogue.md e rode node scripts/preparar.mjs`);
+  if (!s) throw new Error(`efeito sem preparar: ${e.id}. Confira o nome em .ferramenta/sistema/efeitos/catalogue.md e rode node scripts/preparar.mjs`);
   const tom = e.tom ?? 0.92 + 0.16 * rng(e.f * 131 + hash(e.id))();
   const inicio = e.f / FPS + 1 / FPS - s.sinc / tom;        // segundos (o tom muda a velocidade do som)
   const de = Math.round(inicio * FPS);                         // negativo = começa no meio do som
@@ -41,7 +41,7 @@ const calcular = (e: Efeito) => {
 
 /** os efeitos da cena mais os que o motor pôs sozinho (pulos, passos, batidas: ver contatos.ts) */
 export const todos = (efeitos: Efeito[]) => [...efeitos, ...AUTO].sort((a, b) => a.f - b.f);
-/** a lista que o `python sistema/editar.py escutar` lê (o render grava em out/deixas.json) */
+/** a lista que o `python .ferramenta/sistema/editar.py escutar` lê (o render grava em out/deixas.json) */
 export const deixas = (efeitos: Efeito[]) => todos(efeitos).map((e) => calcular(e).deixa);
 
 export const Som: React.FC<{ efeitos: Efeito[] }> = ({ efeitos }) => {

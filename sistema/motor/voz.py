@@ -5,7 +5,7 @@ e grava na pasta de saída:
   voz.wav        a narração, já na velocidade final
   palavras.json  o tempo de cada palavra da tela (o formato do "montar")
   base.mp4       vídeo preto 1080x1920 com a narração, para o "montar"
-A chave fica no arquivo .env da pasta principal: ELEVENLABS_API_KEY=... Cobra um crédito da ElevenLabs por caractere.
+A chave fica no arquivo .env da pasta do editor (fora da ferramenta e fora do backup): ELEVENLABS_API_KEY=... Cobra um crédito da ElevenLabs por caractere.
 Com personagens ([nome] no começo da linha), cada fala sai com a sua voz, e grava também falas.json e falas/ (o cache
 de cada fala: refazer uma fala não gasta as outras de novo).
 """
@@ -19,18 +19,16 @@ import subprocess
 import urllib.request
 from pathlib import Path
 
-from .comum import MEU_ESTILO, RAIZ, config, gravar_json
+from .comum import MEU_ESTILO, chave_do_env, config, gravar_json
 
 
 def chave() -> str:
     if os.environ.get("ELEVENLABS_API_KEY"):  # a chave pode vir do ambiente, sem arquivo
         return os.environ["ELEVENLABS_API_KEY"].strip()
-    env = RAIZ / ".env"
-    if env.exists():
-        for linha in env.read_text(encoding="utf-8").splitlines():
-            if linha.startswith("ELEVENLABS_API_KEY="):
-                return linha.split("=", 1)[1].strip()
-    raise SystemExit("Falta ELEVENLABS_API_KEY no arquivo .env da pasta principal.")
+    achada = chave_do_env("ELEVENLABS_API_KEY")
+    if achada:
+        return achada
+    raise SystemExit("Falta ELEVENLABS_API_KEY no arquivo .env da pasta do editor.")
 
 
 _PASTA_DO_TEXTO: Path | None = None  # a pasta do vídeo que está sendo narrado (o pronuncia.md dela vale só para ele)

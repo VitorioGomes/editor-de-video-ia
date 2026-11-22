@@ -8,9 +8,16 @@ __pycache__/
 .venv/
 .claude/
 
-# O que é de quem usa: os vídeos (editor/: brutos, versões e editados), o trabalho de cada vídeo
-# (projetos/, e videos/ da versão antiga) e o gosto aprendido.
+# O que é de quem usa fica fora da ferramenta, na pasta do editor (a de cima desta .ferramenta/).
+# Estas linhas só valem se alguém usar o clone direto, sem a .ferramenta/: os arquivos da pessoa
+# (os vídeos, o trabalho de cada vídeo, o gosto e os roteiros) nunca entram aqui.
+/brutos/
+/versoes/
+/editados/
+/meu-estilo/
+/roteiros/
+/.projetos/
+# das versões antigas
 /editor/
 /videos/
 /projetos/
-/meu-estilo/

@@ -29,7 +29,7 @@ Quem grava sozinho repete a frase várias vezes até sair boa, e deixa frases pe
 ## O que entra na tela
 
 - **Texto entra na hora em que a palavra é falada**, nem antes nem depois. Isso vale também para a primeira linha de um bloco: o topo pode ficar vazio até a palavra.
-- **Número é o ponto fraco do tempo:** número escrito em algarismos ("R$ 19,90") não tem letra para o alinhador achar no som e fica com o tempo estimado. Em valor, número, ano e lista rápida, acerte o tempo pelo som com `python sistema/editar.py retempo VIDEO PALAVRAS.json DE ATE` (ouve o trecho de novo, acha o número por extenso no som, mostra a energia e corrige o `palavras.json`, com cópia do original).
+- **Número é o ponto fraco do tempo:** número escrito em algarismos ("R$ 19,90") não tem letra para o alinhador achar no som e fica com o tempo estimado. Em valor, número, ano e lista rápida, acerte o tempo pelo som com `python .ferramenta/sistema/editar.py retempo VIDEO PALAVRAS.json DE ATE` (ouve o trecho de novo, acha o número por extenso no som, mostra a energia e corrige o `palavras.json`, com cópia do original).
 - **Nada encostado nas laterais** (uns 110 a 150 px de margem) **nem no alto** (nada importante acima de 220 px): o Instagram aproxima o vídeo e põe o nome do perfil em cima.
 - **Sem frase grande solta na cara da pessoa**, com corte seco: quebra a edição.
 - **Troca de montagem sem corte seco:** de tela cheia para tela dividida, uma transição leve, que mal se vê.

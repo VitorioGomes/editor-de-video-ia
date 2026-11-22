@@ -6,10 +6,17 @@ import os, sys
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 PROJETO = os.path.dirname(AQUI)
-d = PROJETO
-while not os.path.exists(os.path.join(d, "sistema", "editar.py")):  # a pasta principal do editor
+# a ferramenta: .ferramenta/ na pasta do editor (o projeto fica em .projetos/NOME/, ao lado), ou a pasta com sistema/
+d, FERRAMENTA = PROJETO, None
+while FERRAMENTA is None:
+    for f in (os.path.join(d, ".ferramenta"), d):
+        if os.path.exists(os.path.join(f, "sistema", "editar.py")):
+            FERRAMENTA = f
+            break
+    if FERRAMENTA is None and os.path.dirname(d) == d:
+        raise SystemExit("Não achei a ferramenta (.ferramenta/sistema/editar.py) acima de " + PROJETO)
     d = os.path.dirname(d)
-sys.path.insert(0, os.path.join(d, "skill", "referencias", "curta3d", "pecas", "blender"))
+sys.path.insert(0, os.path.join(FERRAMENTA, "skill", "referencias", "curta3d", "pecas", "blender"))
 import estilo as E
 from estilo import box, cyl, sphere, torus, tube, arc, extrude, empty, pivot, adopt, screen
 import pecas  # as peças do kit, para medir uma contra a outra ou aproveitar uma parte (pecas._roda)

@@ -1,7 +1,7 @@
 // Junta o que o vídeo usa, antes de cada render (os outros scripts já chamam este):
 //   - a voz e o palavras.json da pasta "fala" do curta.json (saída do `voz`, do `cortar` de um áudio ou do `falas-gravadas`);
-//   - as cores, as fontes e a legenda da pessoa (sistema/padrao.json com meu-estilo/marca.json por cima);
-//   - as peças 3D: as do kit (skill/referencias/curta3d/pecas/glb) e as do projeto (pecas/), que valem por cima;
+//   - as cores, as fontes e a legenda da pessoa (o padrao.json da ferramenta com o meu-estilo/marca.json por cima);
+//   - as peças 3D: as do kit (skill/referencias/curta3d/pecas/glb, na ferramenta) e as do projeto (pecas/), que valem por cima;
 //   - os efeitos sonoros: todo id do kit de sons escrito entre aspas em src/ é copiado, com o ponto de
 //     sincronia e o pico medido; e cada .wav da pasta sons/ do projeto. O nível da fala também é medido:
 //     o Som.tsx põe cada efeito na régua contra ele (contato 9 dB abaixo, curto 13, contínuo 20).
@@ -13,23 +13,34 @@ import { fileURLToPath } from "node:url";
 
 export const PROJETO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-/** a pasta principal do editor: a do "editor" do curta.json, ou a primeira acima do projeto que tem sistema/editar.py */
-export const acharRaiz = () => {
-  // projeto fora da pasta do editor: "editor" no curta.json (ou a variável CURTA_EDITOR) diz onde ela está
+/** A ferramenta (com sistema/editar.py) e a pasta do editor (com o meu-estilo/ da pessoa). A ferramenta mora em
+ *  .ferramenta/, dentro da pasta do editor, e o projeto em .projetos/NOME/, ao lado dela; sem .ferramenta/ (a oficina),
+ *  as duas são a mesma pasta. Projeto fora da pasta do editor: "editor" no curta.json (ou CURTA_EDITOR) diz onde ela está. */
+const pastas = (d) => {
+  if (fs.existsSync(path.join(d, ".ferramenta", "sistema", "editar.py"))) return { ferramenta: path.join(d, ".ferramenta"), editor: d };
+  if (fs.existsSync(path.join(d, "sistema", "editar.py"))) return { ferramenta: d, editor: path.basename(d) === ".ferramenta" ? path.dirname(d) : d };
+  return null;
+};
+const acharPastas = () => {
   const curta = fs.existsSync(path.join(PROJETO, "curta.json")) ? JSON.parse(fs.readFileSync(path.join(PROJETO, "curta.json"), "utf8").replace(/^﻿/, "")) : {};
   const dito = process.env.CURTA_EDITOR ?? curta.editor;
   if (dito) {
-    const r = path.resolve(PROJETO, dito);
-    if (!fs.existsSync(path.join(r, "sistema", "editar.py"))) throw new Error(`"editor" no curta.json não tem sistema/editar.py: ${r}`);
+    const r = pastas(path.resolve(PROJETO, dito));
+    if (!r) throw new Error(`"editor" no curta.json não é a pasta do editor (sem .ferramenta/sistema/editar.py): ${path.resolve(PROJETO, dito)}`);
     return r;
   }
   let d = PROJETO;
   for (let i = 0; i < 8; i++) {
-    if (fs.existsSync(path.join(d, "sistema", "editar.py"))) return d;
+    const r = pastas(d);
+    if (r) return r;
     d = path.dirname(d);
   }
-  throw new Error("Não achei a pasta principal do editor (com sistema/editar.py) acima de " + PROJETO);
+  throw new Error("Não achei a pasta do editor (com .ferramenta/sistema/editar.py) acima de " + PROJETO);
 };
+/** a ferramenta: sistema/ e skill/ */
+export const acharRaiz = () => acharPastas().ferramenta;
+/** a pasta do editor: o meu-estilo/ da pessoa */
+export const acharEditor = () => acharPastas().editor;
 
 const lerJson = (p) => JSON.parse(fs.readFileSync(p, "utf8").replace(/^﻿/, ""));
 const juntar = (base, cima) => {
@@ -65,7 +76,7 @@ const nivelDaFala = (arquivo) => {
 const picoDoSom = (arquivo) => Math.max(...janelasDb(amostras(arquivo), 240, 120), -90);
 
 export const preparar = () => {
-  const RAIZ = acharRaiz();
+  const RAIZ = acharRaiz(), EDITOR = acharEditor();
   const SKILL = path.join(RAIZ, "skill", "referencias", "curta3d");
   const PUB = path.join(PROJETO, "public"), GER = path.join(PROJETO, "src", "gerado");
   fs.mkdirSync(GER, { recursive: true });
@@ -74,7 +85,7 @@ export const preparar = () => {
   // ---- voz e palavras
   const fala = path.resolve(PROJETO, curta.fala);
   for (const f of ["voz.wav", "palavras.json"]) {
-    if (!fs.existsSync(path.join(fala, f))) throw new Error(`Falta ${f} em ${fala}. Gere a voz antes (de IA: python sistema/editar.py voz projetos/NOME/texto.txt --saida projetos/NOME/corte; gravada: transcrever e cortar, ou falas-gravadas)`);
+    if (!fs.existsSync(path.join(fala, f))) throw new Error(`Falta ${f} em ${fala}. Gere a voz antes (de IA: python .ferramenta/sistema/editar.py voz .projetos/NOME/texto.txt --saida .projetos/NOME/corte; gravada: transcrever e cortar, ou falas-gravadas)`);
   }
   copiar(path.join(fala, "voz.wav"), path.join(PUB, "voz", "voz.wav"));
   const palavras = lerJson(path.join(fala, "palavras.json"));
@@ -85,11 +96,11 @@ export const preparar = () => {
 
   // ---- marca da pessoa
   const cfg = lerJson(path.join(RAIZ, "sistema", "padrao.json"));
-  const marca = path.join(RAIZ, "meu-estilo", "marca.json");
+  const marca = path.join(EDITOR, "meu-estilo", "marca.json");
   if (fs.existsSync(marca)) juntar(cfg, lerJson(marca));
   const fontes = [];
   for (const f of cfg.arquivos_de_fonte ?? []) {
-    const origem = [path.join(RAIZ, "meu-estilo", "fontes", f.arquivo), path.join(RAIZ, "sistema", "fontes", f.arquivo)].find((p) => fs.existsSync(p));
+    const origem = [path.join(EDITOR, "meu-estilo", "fontes", f.arquivo), path.join(RAIZ, "sistema", "fontes", f.arquivo)].find((p) => fs.existsSync(p));
     if (!origem) { console.log("aviso: fonte não encontrada:", f.arquivo); continue; }
     copiar(origem, path.join(PUB, "fontes", f.arquivo));
     fontes.push({ familia: f.familia, arquivo: f.arquivo, peso: f.peso ?? 400, estilo: f.estilo ?? "normal" });
