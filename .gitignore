@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+__pycache__/
+.venv/
+.claude/
+
+# O que é de quem usa: os vídeos (editor/: brutos, versões e editados), o trabalho de cada vídeo
+# (projetos/, e videos/ da versão antiga) e o gosto aprendido.
+/editor/
+/videos/
+/projetos/
+/meu-estilo/

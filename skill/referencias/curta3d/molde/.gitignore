@@ -1,0 +1,8 @@
+# pesado e gerado: fica só no computador
+node_modules/
+out/
+.tmp/
+public/
+src/gerado/
+*.blend
+*.blend1

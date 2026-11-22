@@ -1,0 +1,29 @@
+{
+  "name": "curta3d",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "preparar": "node scripts/preparar.mjs",
+    "studio": "node scripts/preparar.mjs && remotion studio src/index.ts",
+    "tsc": "node scripts/preparar.mjs && tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.8.2",
+    "@remotion/bundler": "4.0.543",
+    "@remotion/cli": "4.0.543",
+    "@remotion/renderer": "4.0.543",
+    "@remotion/three": "4.0.543",
+    "n8ao": "2.0.2",
+    "postprocessing": "6.39.6",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.543",
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "@types/three": "0.187.0",
+    "typescript": "5.9.3"
+  }
+}
