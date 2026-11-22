@@ -68,6 +68,13 @@ Saem `voz.wav`, `palavras.json` (o tempo de cada palavra, sem transcrição) e `
 | QR code | quê erre côudi |
 ```
 
+- **"IA" depende da palavra de antes.** Com a voz Will, a escolha foi feita de ouvido em 2026-11-22, depois de 11 grafias testadas:
+  - depois do artigo "a", a voz gruda as vogais e sai "aia"; o que soa melhor é "A iá";
+  - depois de "com", fica "com i á";
+  - depois de "uma", fica "uma I.A.".
+
+  Anote a expressão inteira no `pronuncia.md` (`| A IA | A iá |`), e não só a palavra. Com outra voz, teste antes uma frase curta com cada grafia e peça à pessoa para ouvir: a transcrição corrige o que ouve e não pega a emenda.
+
 - **Trocar uma palavra ou o final** depois de aprovado: gere só a frase nova e emende num silêncio da voz já aprovada, para não gerar tudo de novo.
 - **Com voz de IA, os efeitos descem:** a voz vem mais baixa que uma gravação. Comece com `"efeitos": {"ganho": -6}` no `roteiro.json`.
 

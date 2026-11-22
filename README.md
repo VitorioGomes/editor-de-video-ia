@@ -26,7 +26,7 @@ Dez estilos prontos, cada um já com as fontes, as cores e o jeito de editar. Pa
 
 - **Roteiro a partir de uma frase.** Mande "quero um vídeo sobre por que o limite do Claude acaba rápido" e a IA escreve o roteiro inteiro, com o gancho e o pedido final, para você aprovar.
 - **Voz de IA ou a sua.** Nos estilos sem rosto, você grava o áudio no celular e manda (com personagens, um áudio só lendo o roteiro na ordem já serve), ou usa uma voz de IA da sua conta na ElevenLabs.
-- **Qualquer outro estilo.** Mande o link de um vídeo com a edição que você quer: a IA estuda o vídeo quadro a quadro e monta o estilo para você, igual ou só inspirado nele.
+- **Engenharia reversa de vídeos.** Mande o link de um vídeo com a edição que você quer: a IA faz a engenharia reversa dele, quadro a quadro, e monta o estilo para você, igual ou só inspirado nele.
 - **Aprende o seu gosto.** Toda correção sua vira regra. O próximo vídeo já sai mais perto do que você quer.
 
 ## Como instalar
