@@ -77,7 +77,8 @@ Todas em metros, na escala real, com o pivô no chão e a frente para +Z. Na lis
 - `placaTexto`: cartaz com texto trocável;
 - `janela`: janela escura de programa, em 3D, dentro da cena;
 - `trilho` e `Caminho`: o trilho e o caminho por onde andam os veículos;
-- `Faiscas`, `Confete` e `Poeira`: as partículas do pouso e da comemoração.
+- `Faiscas`, `Confete` e `Poeira`: as partículas do pouso e da comemoração;
+- `poca(cor, raio)`: poça, mancha ou pó derramado. `posar(x, z, escala, superficie)` cola o disco na superfície (`{ x0, x1, z0, z1, y }`) e o mantém dentro dela.
 
 **Escrever numa tela ou placa:** `escrever(peca, "placa_face", texto("TAREFA GRANDE"))`. O texto não recebe a luz da cena e por isso continua legível com o sol de lado. Para mudar a cada quadro, use `redesenhar(chave, desenho)`, que só redesenha quando a chave muda. A resolução da escrita leva em conta a escala da peça, para a etiqueta de uma caixa aumentada ficar nítida no close. As placas finas `_tela` e `_face` ficam sem contorno (a borda de poucos milímetros virava um tracejado que corria em movimento).
 
@@ -146,6 +147,10 @@ Ele também imprime as frases da fala, numeradas, e as **enumerações** que ach
 - **Nada cobre o rosto:** tampa aberta, placa, item no ar, cartão. Quem fica atrás de uma caixa que abre fica na diagonal, ou a tampa abre só uma fresta.
 - **A faixa de cima e a de baixo estão livres:** nada importante acima de 220 px, nos 150 px dos lados, nos 120 px da direita, nem nos 380 px de baixo (`--guias`).
 - **O texto 3D está nítido e parado:** etiqueta, placa e tela de perto sem borrão (o foco do plano no texto, ou entre o texto e o personagem) e sem tracejado correndo na borda. **O tremido tem número:** `node scripts/conferir.mjs --tremido 12.5,30` mede 12 quadros seguidos a partir de cada segundo dado (a diferença de cada quadro para a média do anterior e do seguinte, de 0 a 255) e reprova acima de **4,0**. Meça em planos parados ou lentos, sem corte no meio: câmera rápida sobe o número sozinha (a grua do graphify deu 5,7 sem nada piscar). Os vídeos aprovados ficaram entre 0,6 e 3,1.
+- **Nada atravessa nada:** em cada queda, pouso e encaixe, a peça termina apoiada na superfície (chão, tampo, prato ou outra peça), e o caminho não passa por dentro de nenhuma outra. Um quadro de close em cada pouso, com a superfície à vista.
+- **Nada flutua:** poça, mancha, pó e rótulo ficam colados na superfície, sem passar da borda dela (`poca()`); peça deitada fica na altura do raio dela.
+- **A silhueta do personagem está limpa:** em cada plano, nada do fundo encosta no contorno da cabeça ou sai dela. O fio da luminária já virou antena no chapéu do Claude.
+- **Cada peça nova se reconhece de perto:** a `vitrine.mjs` de toda peça nova vai junto com a folha, e cada peça é conferida no close. Tem as partes que a definem? Tem algum detalhe raso? (O `blender.mjs` já reprova o raso.)
 - **A tela de programa é a da ferramenta:** o comando, a saída e o endereço copiados da ferramenta real, e cabendo na janela (nada cortado no meio da palavra).
 - **O som:** todo contato soa; o whoosh dos cortes se ouve; nenhum efeito AUSENTE; os FORA da escuta são só de sons que se sobrepõem (confira ouvindo o trecho).
 - **O fim:** a última palavra, um respiro curto e o corte.
@@ -202,6 +207,32 @@ Só depois disso o vídeo vai para o `finalizar` e para quem pediu.
 | Personagem não humano parado, sem gesto | o motor: o `animarRosto` faz `aponta`, `maos`, `aceno` e `ombros` com o braço, a pata ou a asa |
 | Personagem não humano sem jeito de entrar na régua | o motor: o contrato do rosto (`animarRosto`, `registrarRosto`), e o `dialogo()` recusa ator sem as alturas; o `robo` de exemplo |
 | Blender descoberto só quando o vídeo pede peça nova | o `verificar` confere o Blender (opcional) e o `blender.mjs` usa o mesmo caminho |
+| Face de texto deitada (o topo de uma tecla) sem o texto: o `escrever` desenha na frente da caixa da face, e a face girada no Blender sai com a caixa fina na vertical (vídeo "Esc duas vezes", 2026-11-24) | o guia: face de texto sempre em pé, virada para -Y; texto no topo vai num plano próprio do three.js, deitado em cima da peça |
+| Material de peça nova com o nome de um material do kit (`robo`) saiu com a cor do kit, branco e preto (vídeo "Esc duas vezes") | o guia: material de peça nova com nome próprio, que não exista na paleta nem em outra peça |
+| `q("Ou", 1)` caiu no "ou" do meio de uma frase: a busca ignora maiúscula, então "Ou seja" era o segundo "ou" (vídeo "Esc duas vezes") | o guia: confira o `n` de toda palavra comum com o `editar.py palavras` antes de usar |
+| Tracejado nas portas dos armários e pontinhos nas listras do pano, em peças novas. Vinham de um painel de 1 a 2 cm colado na porta, de tiras finas coladas no pano, da janelinha do forno e do recheio do bolo, quase com o mesmo raio da massa. A regra do tracejado (do graphify) já existia e não segurou (vídeo "Esc duas vezes", teste 1) | o kit: material com nome `tinta_*` fica **sem contorno** (vão de porta, janelinha, boca do fogão, faixa: só a cor aparece); o `blender.mjs` reprova o **degrau raso** (parte encostada noutra que avança de 0,4 a 10 cm sobre ela, em mais de 0,02 m²), e a peça só sai com `--aceitar-raso`. Listra de pano feito no three.js vai pintada na textura. Ver "Por que a regra do tracejado falhou", abaixo |
+| O bolo que desaba entrou dentro da bancada: a pose final era chutada (um deslocamento e um giro), sem conta de apoio (vídeo "Esc duas vezes") | o guia: queda termina **apoiada**, com a altura calculada pelo ponto mais baixo da peça girada contra a superfície (chão mais o raio, topo mais o canto), e o caminho não passa por dentro de nada; a lista: close de cada pouso |
+| A mancha roxa flutuava e passava da borda do balcão (vídeo "Esc duas vezes") | o motor: `poca(cor, raio)` cola o disco na superfície e o puxa para dentro dela; o `conferir.mjs` reprova disco deitado montado à mão na cena |
+| O fio da luminária saindo do chapéu do Claude, como uma antena (vídeo "Esc duas vezes") | a lista: a silhueta do personagem contra o fundo, em todo plano; nenhum fio, poste, quina ou borda de peça encostando na cabeça ou saindo dela; luminária e poste nunca em cima de onde o personagem fica |
+| A panela do fogão era um cilindro vermelho liso: "parece um queijo" (vídeo "Esc duas vezes") | a lista: peça reconhecível de perto, com as partes que a definem (a panela: borda, alças, tampa com pegador); toda peça nova passa pela `vitrine.mjs`, e a imagem vai junto com a folha |
+| Rótulo plano num pote redondo, com as pontas soltas no ar (vídeo "Esc duas vezes") | o guia: rótulo estreito e afundado na curva, com as pontas a menos de 5 mm da superfície |
+| Filete tracejado no vão entre duas portas de armário, num close (Esc Esc, teste 2) | o `blender.mjs` reprova o **vão estreito** (partes com a frente alinhada e 2 mm a 4 cm de espaço entre elas); peças separadas na cena ficam encostadas ou a 15 cm ou mais |
+
+### Por que a regra do tracejado falhou (e o que mudou)
+
+Depois do graphify, a regra ficou assim: "linha fina de enfeite sai ou fica grossa e estável". O motor tirava o contorno das `_face` e `_tela`, e o tremido era medido em quadros seguidos. No vídeo "Esc duas vezes", o tracejado voltou nas portas dos armários e no pano do menu, por três motivos:
+
+1. **A regra descrevia o sintoma, e a causa estava no contorno.** O contorno (`fx/ink.ts`) desenha um salto de profundidade a partir de 1% da distância da câmera e só o deixa cheio a 3%. De 3 a 8 m, isso dá um degrau de 3 a 24 cm, e é nessa faixa que fica uma porta saliente, um painel ou uma listra colada. A linha sai pela metade, picotada e correndo. Detalhe ainda mais fino também não escapa: o lado de 2 mm de uma faixa tem a normal virada, e a "dobra" (crease) pisca nele. No teste 2, com a porta de 4 cm afastada 2 cm, o tracejado continuou. Com a faixa rente de 2 mm, também.
+2. **O motor só protegia as faces de texto.** Painel, listra e janelinha não terminam em `_face`, e ficaram com contorno.
+3. **O tremido não enxerga o tracejado.** Ele mede a média do quadro inteiro, e uma linha de poucos pixels piscando não move o número: as portas deram de 1,8 a 3,9, abaixo do limite. Medido por blocos de 24 px, ele acusa qualquer movimento e não separa o tracejado. Além disso, o tremido só rodava nos segundos escolhidos à mão, e nenhum deles era da bancada.
+
+**O que mudou:**
+
+- **A pintura:** material com nome `tinta_*` fica sem contorno (`kit.ts`, como as faces de texto). Vão de porta, janela de forno, boca de fogão e faixa viram uma placa rente com esse material, e só a cor aparece. Conferido no teste 2: as linhas das portas saem cheias e paradas.
+- **A conferência foi para a origem, onde o erro é exato.** O `exportar` do Blender mede cada parte e acusa o degrau raso (`RASO peça: parte avança N mm sobre outra`): uma parte encostada noutra (a menos de 3 cm), menor que ela, que avança de 0,4 a 10 cm numa área de mais de 0,02 m². O `blender.mjs` reprova. Ficam de fora a pintura, a peça pequena (puxador, botão), a camada do mesmo tamanho empilhada (o recheio do bolo) e o vizinho do mesmo tamanho (um livro ao lado do outro).
+- **O close peça por peça:** a `vitrine.mjs` de cada peça nova vai para a folha.
+
+As peças do kit também passam pelo `exportar`. A xícara do kit acusou o café, o disco do líquido rente dentro dela: ou ele vira `tinta_`, ou a xícara fica longe da câmera.
 
 ## O cenário
 
@@ -307,7 +338,10 @@ Use o kit primeiro. Muita coisa sai de uma peça do kit com outra cor (`peca(kit
    - cantos chanfrados;
    - materiais da paleta, pelo nome;
    - juntas em "empty" no ponto de giro;
-   - telas e placas em nós terminados em `_tela` ou `_face`.
+   - nenhum vão estreito: duas partes com a frente alinhada e de 2 mm a 4 cm de espaço entre elas (porta com porta, gaveta com gaveta, tábua com tábua) viram um filete tracejado, e o `blender.mjs` reprova. Encoste, afaste mais de 4 cm, ou faça uma frente só com o vão pintado (`tinta_*`). Plataforma e tampo são uma tábua só;
+   - nenhum degrau raso: uma parte encostada noutra que avança de 0,4 a 10 cm sobre ela (painel ou porta saliente, listra, janelinha, placa colada) vira tracejado no contorno, e o `blender.mjs` reprova. Detalhe fino de superfície (vão de porta, janela de forno, boca de fogão, faixa) é **pintura**: uma placa rente de 4 mm com material `tinta_algumacoisa`, que o kit deixa sem contorno. Relevo de verdade avança mais de 10 cm;
+   - telas e placas em nós terminados em `_tela` ou `_face`, sempre em pé e com a frente para -Y (o `escrever` desenha na frente da caixa da face; uma face deitada sai sem texto). Texto que fica deitado, como o topo de uma tecla, vai num plano do three.js por cima da peça;
+   - material com nome próprio, que não exista na paleta nem em outra peça do kit: o kit pinta pelo nome, e um `robo` numa peça nova saiu com as cores do robô do kit.
 
    Monte com caixas, cilindros e esferas chanfrados (`box`, `cyl`, `sphere`, `tube`, `extrude`), como as peças do `pecas.py`.
 4. Confira com `node scripts/vitrine.mjs minha_peca`, que gera `out/vitrine/minha_peca.jpg` no acabamento do estilo. Nada de texto modelado com fonte do sistema: o texto vai pelo `escrever`.
@@ -479,3 +513,24 @@ O roteiro é uma conversa de verdade: cada fala responde à anterior, e a dúvid
 ## Licença do Remotion
 
 O Remotion é gratuito para pessoa física e para empresa de até 3 funcionários. **Empresa maior precisa comprar a licença do Remotion** (remotion.pro). O three.js, o Blender e os pacotes de acabamento são livres. O código de acabamento (contorno, desfoque, tratamento de cor e câmera) vem da skill cartoon-3d-short, sob a licença MIT (© 2026 Mr omi), e o aviso dela está em `.ferramenta/skill/referencias/curta3d/LICENCA-cartoon-3d-short.txt`.
+
+
+**Resolvido (2026-11-25):** o filete tracejado no vão entre duas portas (Esc Esc, teste 2) agora é reprovado na origem. O `exportar` também acusa o **vão estreito**: duas partes com a frente alinhada (a menos de 5 mm), com 2 mm a 4 cm de espaço entre as faces que se olham, numa área de mais de 0,02 m². De frente, esse vão é uma fenda de 1 a 3 px, e o contorno dos dois lados pisca. Para passar: encostar as partes, afastar mais de 4 cm, ou fazer a frente numa parte só com o vão em `tinta_*`. Entre peças separadas da cena (uma bancada ao lado do fogão), vale o mesmo: encostadas ou a 15 cm ou mais, conferido na folha de closes. O kit ainda tem acusações a rever (a `estante`, a `estante_livros`, a `mesa_escritorio`, o `notebook` e a `pessoa`): elas aparecem se alguém refizer essas peças.
+
+
+## Regras do teste "fila de mensagens" (2026-11-25, Vitório: "o vídeo inteiro ficou bem ruim")
+
+- **Metáfora reconhecível num relance:** lugar e ação reais e conhecidos (pintor num balancim pintando um prédio), nunca um lugar que só o roteiro sabe o que é (o "ateliê" com um site pintado na parede). Teste: dá para dizer em 3 palavras o que a cena mostra. O conceito do Claude entra por cima da cena real.
+- **Colisão conferida em cada quadro, inclusive o que o personagem segura:** cabo do rolo atravessando o corpo e seta entrando no botão. Terceira vez que a sobreposição volta: precisa de conferência automática (interseção entre as malhas ou caixas das peças por quadro), não só de regra.
+- **Borda única e reta em painel e placa:** nada de contorno dobrado ou torto.
+- **Nada aparece do nada:** balão, mensagem e objeto entram saindo de alguém ou de algum lugar visível.
+- **Mão legível:** mão de desenho com dedos e indicador claros, ou sem mão.
+- **Cada afirmação visual da fala tem o seu elemento na tela** (o "cinza = ainda não leu" sem nada cinza na tela).
+
+## Regras do teste 2 da "fila de mensagens" (2026-11-25)
+
+- **O que carrega a história aparece grande:** objeto pequeno de verdade (bilhete, mensagem) ganha close quando a fala fala dele, ou fica do tamanho de uma placa. Teste: o quadro reduzido ao tamanho de um celular ainda lê o objeto e o texto.
+- **A câmera nunca entra numa peça:** a conferência de colisão inclui a câmera; quadro com uma cor só ocupando quase a tela inteira é reprovado.
+- **Personagem parado não treme:** respiração e espera são lentas e pequenas; braço só se mexe com uma ação.
+- **Mesmo acabamento entre personagens:** quem divide a tela com o protagonista tem o mesmo nível de detalhe, material e contorno.
+- **Tempo de produção anotado por etapa** no `NOTAS.md` do projeto, para ver quando um vídeo sai do normal.

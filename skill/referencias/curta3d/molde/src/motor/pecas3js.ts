@@ -319,6 +319,26 @@ export const sombraBolha = (raio = 0.5, forca = 0.45) => {
 };
 
 /** sombra de contato parada debaixo de quem está no chão (os pés, o Claude): ancora o personagem; `posar(x, z)` */
+/**
+ * Poça ou mancha no chão, numa bancada ou num prato (o pó derramado, o líquido): um disco que cola na superfície e
+ * nunca passa da borda dela. `sup` é o retângulo da superfície (x0..x1, z0..z1) e a altura dela (y). O centro é puxado
+ * para dentro até o disco inteiro caber, e ele fica 2 mm acima, sem brigar com a superfície (polygonOffset).
+ * Antes (vídeo "Esc duas vezes", 2026-11-24), a mancha posta à mão passava da borda do balcão e flutuava.
+ */
+export type Superficie = { x0: number; x1: number; z0: number; z1: number; y: number };
+export const poca = (cor: string, raio: number, o: { brilho?: number } = {}) => {
+  const mat = new THREE.MeshStandardMaterial({ color: cor, roughness: o.brilho ? 0.2 : 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  const m = new THREE.Mesh(new THREE.CircleGeometry(raio, 40), mat);
+  m.rotation.x = -Math.PI / 2; m.layers.set(NOINK); m.receiveShadow = true;
+  const posar = (x: number, z: number, escala: number, sup: Superficie) => {
+    const r = raio * Math.max(escala, 0.001);
+    m.visible = escala > 0.01;
+    m.scale.setScalar(Math.max(escala, 0.001));
+    m.position.set(Math.min(Math.max(x, sup.x0 + r), sup.x1 - r), sup.y + 0.002, Math.min(Math.max(z, sup.z0 + r), sup.z1 - r));
+  };
+  return { malha: m, posar };
+};
+
 export const sombraContato = (raio = 0.5, forca = 0.38) => {
   const b = sombraBolha(raio, forca);
   return { malha: b.malha, posar: (x: number, z: number) => b.posar(x, z, 0.03) };

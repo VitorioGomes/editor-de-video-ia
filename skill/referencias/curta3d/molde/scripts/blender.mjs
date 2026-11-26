@@ -33,7 +33,8 @@ if (!blender) {
   console.error("Blender não encontrado. Ele é gratuito e não precisa de placa de vídeo: " + (os.platform() === "darwin" ? "brew install --cask blender" : os.platform() === "win32" ? "winget install BlenderFoundation.Blender" : "instale pelo gerenciador do sistema") + " (ou blender.org, versão 4.2 ou mais nova). Em outro lugar, defina BLENDER com o caminho. Confira com: python .ferramenta/sistema/editar.py verificar");
   process.exit(1);
 }
-const lista = process.argv.slice(2);
+const aceitarRaso = process.argv.includes("--aceitar-raso");
+const lista = process.argv.slice(2).filter((a) => a !== "--aceitar-raso");
 let script, extra = [];
 if (lista[0] === "--kit") {
   script = path.join(acharRaiz(), "skill", "referencias", "curta3d", "pecas", "blender", "pecas.py");
@@ -45,5 +46,8 @@ if (lista[0] === "--kit") {
 }
 const r = spawnSync(blender, ["-b", "--factory-startup", "-P", script, "--", ...extra], { encoding: "utf8", cwd: PROJETO });
 const saida = (r.stdout ?? "") + (r.stderr ?? "");
-for (const l of saida.split(/\r?\n/)) if (/^(PECA|  \S+: assentada|AVISO|Traceback|Error|  File|\w+Error)/.test(l)) console.log(l);
+for (const l of saida.split(/\r?\n/)) if (/^(PECA|RASO|  \S+: assentada|AVISO|Traceback|Error|  File|\w+Error)/.test(l)) console.log(l);
 if (r.status !== 0 || /Traceback/.test(saida)) { console.error("O Blender falhou. O fim da saída:\n" + saida.slice(-1500)); process.exit(1); }
+// detalhe raso (parte fina colada noutra): o contorno desenha a dobra como um tracejado que corre em movimento
+// (as portas da bancada e as listras do pano do vídeo "Esc duas vezes"). Reprova, a não ser com --aceitar-raso.
+if (/^RASO /m.test(saida) && !aceitarRaso) { console.error("Detalhe raso: vira tracejado no vídeo (veja as linhas RASO acima)."); process.exitCode = 1; }

@@ -32,6 +32,7 @@ Um `.html` na pasta do projeto (ao lado do `roteiro.json`), com três partes: um
 - **Prefixo próprio nas classes** (`xx-`), para o CSS de uma animação não pegar em outra.
 - **Cores e fontes da marca** estão em variáveis: `var(--c-texto)`, `var(--c-destaque)`, `var(--c-alerta)`, `var(--c-acento)`, `var(--c-parede)`, `var(--c-motion)` e `var(--c-motion-fim)` (as do Motion), `var(--c-metade)` (a do Metade), `var(--f-serifa)`, `var(--f-mao)`, `var(--f-forte)`, `var(--f-lista)`, `var(--f-mono)`. Use as variáveis em vez de escrever a cor, para a animação seguir a marca da pessoa. Para um tom transparente da cor, `color-mix(in srgb, var(--c-motion) 20%, transparent)`.
 - **`fromTo` mais de uma vez no mesmo elemento:** a partir do segundo, ponha `immediateRender: false`, ou o estado inicial aparece antes da hora.
+- **O conteúdo de uma janela que entra começa escondido:** o primeiro `fromTo` do conteúdo vai sem `immediateRender: false` (ou com `opacity: 0` no CSS). Com ele, o conteúdo aparece junto com a janela, some e entra de novo, e quem assiste vê a janela "entrando duas vezes".
 - **Nada infinito:** `repeat: -1` e animação em CSS quebram o render. Tudo no `tl`, com repetição contada até o fim da camada.
 
 No `roteiro.json`, a camada é `{"tipo": "bloco", "arquivo": "minha-cena.html", ...}` (ver [camadas.md](camadas.md)).

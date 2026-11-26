@@ -1584,6 +1584,93 @@ def medir(root):
     return (max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs)), min(zs)
 
 
+def rasos(root, colada=0.03, pintura=0.0, degrau=0.10, area=0.02, parte_da_face=0.8):
+    """Degrau raso: uma parte encostada na face de outra (a menos de 3 cm), menor que ela (até 80% da face) que avança de 0,4 a 10 cm sobre ela,
+    numa área de mais de 0,02 m² (painel de porta, porta saliente, listra, janelinha, placa colada).
+    Por que vira tracejado: o contorno do Curta 3D (fx/ink.ts) desenha um salto de profundidade a partir de 1% da
+    distância da câmera e só fica cheio a 3%. De 3 a 8 m, um degrau de 3 a 24 cm cai nessa faixa e sai picotado,
+    correndo em movimento (as portas da bancada e as listras do pano, vídeo "Esc duas vezes", 2026-11-24).
+    Passa: a pintura (material "tinta_*", que fica sem contorno), o que avança mais de 10 cm, a peça pequena
+    (puxador, botão), a camada empilhada do mesmo tamanho (o recheio do bolo) e as faces de texto (_face, _tela).
+    Devolve [(parte, base, avanço em mm)]."""
+    bpy.context.view_layer.update()
+    caixas = []
+    for o in root.children_recursive:
+        if o.type != 'MESH' or o.name.endswith(("_face", "_tela")):
+            continue
+        if o.active_material and o.active_material.name.startswith("tinta"):
+            continue  # pintura: fica sem contorno no three.js (kit.ts), então não risca
+        vs = [o.matrix_world @ v.co for v in o.data.vertices]
+        lo = [min(v[i] for v in vs) for i in range(3)]; hi = [max(v[i] for v in vs) for i in range(3)]
+        caixas.append((o.name, lo, hi))
+    achados = []
+    for na, la, ha in caixas:
+        # para cada direção, só a superfície mais próxima conta (a boca do fogão fica sobre a chapa, não sobre o corpo
+        # que está embaixo dela)
+        melhor = {}
+        for nb, lb, hb in caixas:
+            if nb == na:
+                continue
+            for eixo in range(3):
+                outros = [i for i in range(3) if i != eixo]
+                if not all(la[i] >= lb[i] - 0.005 and ha[i] <= hb[i] + 0.005 for i in outros):
+                    continue
+                for lado in (1, -1):
+                    face = hb[eixo] if lado > 0 else lb[eixo]
+                    perto = la[eixo] if lado > 0 else ha[eixo]
+                    dist = (perto - face) * lado
+                    if -0.002 <= dist <= colada and ((eixo, lado) not in melhor or dist < melhor[(eixo, lado)][0]):
+                        melhor[(eixo, lado)] = (dist, nb, lb, hb)
+        for (eixo, lado), (dist, nb, lb, hb) in melhor.items():
+            outros = [i for i in range(3) if i != eixo]
+            # camada do mesmo tamanho empilhada (lados rentes, sem degrau na borda)
+            if all(abs(la[i] - lb[i]) < 0.02 and abs(ha[i] - hb[i]) < 0.02 for i in outros):
+                continue
+            ar = (ha[outros[0]] - la[outros[0]]) * (ha[outros[1]] - la[outros[1]])
+            if ar < area or ar > parte_da_face * (hb[outros[0]] - lb[outros[0]]) * (hb[outros[1]] - lb[outros[1]]):
+                continue  # pequena demais para riscar, ou vizinha do mesmo tamanho (um livro ao lado do outro)
+            face = hb[eixo] if lado > 0 else lb[eixo]
+            longe = ha[eixo] if lado > 0 else la[eixo]
+            avanco = (longe - face) * lado
+            if pintura < avanco < degrau:
+                achados.append((na, nb, round(avanco * 1000)))
+                break
+    return achados
+
+
+def vaos(root, minimo=0.002, maximo=0.04, area=0.02):
+    """Vão estreito entre partes vizinhas: duas partes lado a lado (porta com porta, gaveta com gaveta, tábua com
+    tábua) com um espaço de 2 mm a 4 cm entre as faces que se olham, numa área de mais de 0,02 m². De frente, o vão
+    é uma fenda de 1 a 3 px: o contorno dos dois lados se junta e some de um quadro para o outro, e sai um filete
+    tracejado (o vão entre duas portas de armário, vídeo "Esc duas vezes", teste 2). Encoste as partes (vão zero),
+    afaste mais de 4 cm, ou faça a frente numa parte só e pinte o vão com um material "tinta_*".
+    Devolve [(parte, vizinha, vão em mm)]."""
+    bpy.context.view_layer.update()
+    caixas = []
+    for o in root.children_recursive:
+        if o.type != 'MESH' or o.name.endswith(("_face", "_tela")):
+            continue
+        if o.active_material and o.active_material.name.startswith("tinta"):
+            continue
+        vs = [o.matrix_world @ v.co for v in o.data.vertices]
+        caixas.append((o.name, [min(v[i] for v in vs) for i in range(3)], [max(v[i] for v in vs) for i in range(3)]))
+    achados = []
+    for ia, (na, la, ha) in enumerate(caixas):
+        for nb, lb, hb in caixas[ia + 1:]:
+            for eixo in range(3):
+                vao = lb[eixo] - ha[eixo] if lb[eixo] >= ha[eixo] else la[eixo] - hb[eixo]
+                if not (minimo < vao < maximo):
+                    continue
+                outros = [i for i in range(3) if i != eixo]
+                sobre = [min(ha[i], hb[i]) - max(la[i], lb[i]) for i in outros]
+                # a fenda só aparece quando as duas frentes estão alinhadas (porta com porta): numa das outras
+                # direções, as duas terminam no mesmo plano, a menos de 5 mm
+                alinhadas = any(abs(ha[i] - hb[i]) < 0.005 or abs(la[i] - lb[i]) < 0.005 for i in outros)
+                if alinhadas and min(sobre) > 0 and sobre[0] * sobre[1] > area:
+                    achados.append((na, nb, round(vao * 1000)))
+    return achados
+
+
 def exportar(nome, saida):
     E.novo()
     random.seed(7)
@@ -1593,6 +1680,10 @@ def exportar(nome, saida):
         for c in root.children:
             c.location.z -= z0
         print(f"  {nome}: assentada no chão ({-z0:+.3f} m)")
+    for parte, base, mm in rasos(root):
+        print(f"RASO {nome}: {parte} avança {mm} mm sobre {base} (degrau de 0,4 a 10 cm vira tracejado no contorno: pinte com um material tinta_*, rente, ou avance mais de 10 cm)")
+    for parte, viz, mm in vaos(root):
+        print(f"RASO {nome}: vão de {mm} mm entre {parte} e {viz} (fenda de 2 mm a 4 cm vira filete tracejado: encoste, afaste mais de 4 cm, ou faça uma frente só com o vão em tinta_*)")
     os.makedirs(saida, exist_ok=True)
     bpy.ops.export_scene.gltf(filepath=os.path.join(saida, nome + ".glb"), export_format='GLB', use_selection=False,
                               export_apply=True, export_yup=True)

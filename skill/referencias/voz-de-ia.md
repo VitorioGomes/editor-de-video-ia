@@ -75,7 +75,14 @@ Saem `voz.wav`, `palavras.json` (o tempo de cada palavra, sem transcrição) e `
 
   Anote a expressão inteira no `pronuncia.md` (`| A IA | A iá |`), e não só a palavra. Com outra voz, teste antes uma frase curta com cada grafia e peça à pessoa para ouvir: a transcrição corrige o que ouve e não pega a emenda.
 
-- **Trocar uma palavra ou o final** depois de aprovado: gere só a frase nova e emende num silêncio da voz já aprovada, para não gerar tudo de novo.
+- **Trocar uma palavra ou o final** depois de aprovado: gere de novo a fala inteira em que ela está, com a pontuação natural, e deixe as outras falas como estão. O produto já guarda cada fala separada, então isso não refaz o resto.
+- **Sem remendo na voz.** Quem ouve percebe, e cada remendo vira mais uma versão e mais crédito gasto. Nunca:
+  - corte uma fala no meio;
+  - junte duas falas tirando a pontuação para forçar a emenda;
+  - ponha vírgula escondida para separar uma sílaba;
+  - acelere ou estique o áudio para caber na tela.
+
+  A tela se ajusta ao tempo da fala, e não o contrário. Palavra difícil se resolve antes, com o teste curto de grafia descrito acima. Se nenhuma grafia funcionar, reescreva a frase.
 - **Com voz de IA, os efeitos descem:** a voz vem mais baixa que uma gravação. Comece com `"efeitos": {"ganho": -6}` no `roteiro.json`.
 
 ## Se der erro

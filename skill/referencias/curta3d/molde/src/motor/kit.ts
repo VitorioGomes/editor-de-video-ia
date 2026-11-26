@@ -176,6 +176,10 @@ export const carregarKit = async (nomes: string[] = (cfg as { pecas: string[] })
       // as placas finas de tela e de etiqueta ("_tela", "_face") ficam sem contorno: a borda delas, de poucos
       // milímetros, virava um tracejado que corria e tremulava em movimento
       if (/_(tela|face)$/.test(m.name)) m.layers.set(NOINK);
+      // a pintura (material "tinta_*"): vão de porta, janelinha, boca do fogão, faixa. Detalhe fino desenhado em
+      // geometria vira tracejado no contorno (o lado de 2 mm tem a normal virada e a dobra pisca); como tinta, ele
+      // fica sem contorno e só a cor aparece (vídeo "Esc duas vezes", 2026-11-24)
+      if (/^tinta/.test(mat.name)) m.layers.set(NOINK);
     });
     kit[n] = root;
   }));

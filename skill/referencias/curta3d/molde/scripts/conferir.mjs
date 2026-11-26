@@ -8,6 +8,7 @@
 //   4. a cena sem cenário trabalhado (o campo verde como fundo padrão);
 //   5. efeito AUSENTE na escuta (quando out/sem.mp4 existe);
 //   6. peça criada com `escala` que recebe scale.set (a escala base some; use escalar);
+//   6b. poça ou mancha montada à mão como disco deitado (use poca(): cola na superfície e não passa da borda);
 //   7. símbolo ou emoji no código da cena (★ ✕ ✓: caem na fonte do sistema; use Estrela, Xis, Certo);
 //   8. no Estilo Conversa (a cena exporta REGUA = D.medir): olhos de quem fala fora de 700 a 1000 px, olhos atrás do
 //      cartão, legenda em cima da boca ou abaixo de 1560 px, cartão com base abaixo de 930 px;
@@ -84,6 +85,11 @@ for (const m of fonte.matchAll(/(\w+)\s*=\s*peca\(kit,\s*"[^"]+",\s*\{[^}]*escal
   const usos = [...fonte.matchAll(new RegExp("\\b" + m[1] + "\\.scale\\.(?:set|setScalar)\\(([^;]*)\\)", "g"))];
   if (usos.some((u) => !u[1].includes(m[2]))) falha("escala apagada", `${m[1]} foi criada com escala e depois recebe ${m[1]}.scale.set(...): a peça volta ao tamanho de fábrica. Use escalar(${m[1]}, k)`);
 }
+
+// 6b. poça ou mancha posta à mão (um disco deitado no cena): ela flutua e passa da borda da superfície. Use poca(),
+// que cola o disco na superfície e o mantém dentro dela (vídeo "Esc duas vezes", 2026-11-24)
+if (/new THREE.CircleGeometry\([^)]*\)[\s\S]{0,260}?rotation\.x\s*=\s*-\s*Math\.PI\s*\/\s*2/.test(fonte))
+  falha("poça à mão", "um disco ou plano deitado foi montado direto na cena: se é poça, mancha ou pó derramado, use poca(cor, raio) e posar(x, z, escala, superficie), que cola na superfície e não passa da borda");
 
 // 7. símbolo e emoji no código da cena (★ ✕ ✓ e emoji caem na fonte do sistema): use Estrela, Xis, Certo do Cartao.tsx
 {
@@ -189,6 +195,26 @@ if (a.tremido && fs.existsSync(path.join(PROJETO, "out", "render.mp4"))) {
     console.log(`Tremido em ${t} s: ${v.toFixed(2)} (limite 4,0)`);
     if (v > 4) falha("tremido", `${t} s: ${v.toFixed(2)} em 255, acima de 4,0 (veja os quadros seguidos: o que pisca de um para o outro?)`);
   }
+}
+
+// 11. tela de uma cor só: a câmera dentro de uma peça vira um quadro inteiro de uma cor (o balde laranja no teste 2
+//     do vídeo da fila). A cada 0,1 s do render, mede quanto do quadro tem a cor perto da cor mediana dele (distância
+//     RGB abaixo de 45): acima de 85%, reprova. Medido no teste 2: a tela laranja deu de 88 a 100%; o quadro normal
+//     mais uniforme, 77%. A legenda e o selo não contam (só a faixa de 300 a 1250 px)
+if (fs.existsSync(path.join(PROJETO, "out", "render.mp4"))) {
+  const W = 36, H = 64;
+  const r = spawnSync("ffmpeg", ["-v", "error", "-i", path.join(PROJETO, "out", "render.mp4"), "-vf", `fps=10,scale=${W}:${H}:flags=area`, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], { maxBuffer: 1 << 28 });
+  const n = Math.floor(r.stdout.length / (W * H * 3)), y0 = Math.round(H * 300 / 1920), y1 = Math.round(H * 1250 / 1920);
+  const ruins = [];
+  for (let k = 0; k < n; k++) {
+    const px = [];
+    for (let y = y0; y < y1; y++) for (let x = 0; x < W; x++) { const i = (k * W * H + y * W + x) * 3; px.push([r.stdout[i], r.stdout[i + 1], r.stdout[i + 2]]); }
+    const med = [0, 1, 2].map((c) => { const v = px.map((p) => p[c]).sort((a, b) => a - b); return v[v.length >> 1]; });
+    const parte = px.filter((p) => Math.hypot(p[0] - med[0], p[1] - med[1], p[2] - med[2]) < 45).length / px.length;
+    if (parte > 0.85) ruins.push(`${(k / 10).toFixed(1)} s (${Math.round(parte * 100)}%)`);
+  }
+  if (ruins.length) falha("tela de uma cor só", ruins.slice(0, 8).join(", ") + (ruins.length > 8 ? ` e mais ${ruins.length - 8}` : "") + ": a câmera entrou numa peça?");
+  else console.log(`Uma cor só: nenhum quadro (${n} medidos).`);
 }
 
 // as enumerações da fala: "o seu código, os documentos e até os PDFs" (trechos curtos, de até 3 palavras, separados

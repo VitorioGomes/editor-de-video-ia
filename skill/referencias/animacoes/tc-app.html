@@ -1,4 +1,4 @@
-<!-- O app do Claude, copiado tela por tela, do "Primeiro" até o seletor de modelos. A página de download, o app pequeno ao lado (com as barras navegador x app), o app inteiro, as três abas, o Chat (pedido, resposta e as pílulas), o Cowork (a pasta, a leitura dos arquivos, o relatório), o Code (editor e site), os anexos, a voz, os projetos (lista, criar, instruções, arquivos, o Claude guardando tudo, a qualidade subindo) e o seletor de modelos. O seletor fica no fim: a cena seguinte o transforma no cartão dos modelos.
+<!-- O app do Claude, copiado tela por tela, do "Primeiro" até o seletor de modelos. A página de download, o app pequeno ao lado (com as barras navegador x app), o app inteiro, as abas (Chat e Code), o Chat (pedido, resposta e as pílulas), o trabalho com uma pasta no Chat (a pasta, a leitura dos arquivos, o relatório; era o Cowork, que se juntou ao Chat em 2026-11), o Code (editor e site), os anexos, a voz, os projetos (lista, criar, instruções, arquivos, o Claude guardando tudo, a qualidade subindo) e o seletor de modelos. O seletor fica no fim: a cena seguinte o transforma no cartão dos modelos.
 M: [baixa, aplicativo, recursos, navegador, No, abas, Chat, perguntar, ideias, escrever, Cowork, indica, pasta, organiza, relatórios, Code, projetos, Em#2, anexar, arquivo, foto, áudio, planilha, ditar, Pro#2, separa, projetos#2, cada, instruções, arquivos#2, sempre, respostas, melhores, São#2, modelos]. -->
 <style>
 .ga-dl { left: 190px; top: 620px; width: 700px; height: 400px; opacity: 0; transform-origin: 0 0; }
@@ -79,7 +79,7 @@ M: [baixa, aplicativo, recursos, navegador, No, abas, Chat, perguntar, ideias, e
 <div class="tc" id="$IDc">
   <div class="tc-escura ga-dl" id="$IDdl">
     <div class="tc-barra"><i></i><i></i><i></i><span>claude.ai/download</span></div>
-    <div class="ga-dl-in"><span id="$IDda1"></span><div class="ga-dl-t">Download Claude</div><div class="ga-dl-s">Chat, Cowork e Code num lugar só</div><div class="ga-dl-b" id="$IDdb">⊞ Baixar para Windows</div></div>
+    <div class="ga-dl-in"><span id="$IDda1"></span><div class="ga-dl-t">Download Claude</div><div class="ga-dl-s">Chat e Code num lugar só</div><div class="ga-dl-b" id="$IDdb">⊞ Baixar para Windows</div></div>
   </div>
   <div class="ga-barras" id="$IDbr">
     <div class="ga-base"></div>
@@ -132,7 +132,7 @@ M: [baixa, aplicativo, recursos, navegador, No, abas, Chat, perguntar, ideias, e
         <div class="ga-wv" id="$IDwv"></div>
         <div class="tc-linha">
           <div class="tc-mais" id="$IDmais">+</div>
-          <div class="tc-modos" id="$IDmo"><span class="on" id="$IDm0">Chat</span><span id="$IDm1">Cowork</span><span id="$IDm2">Code</span></div>
+          <div class="tc-modos" id="$IDmo"><span class="on" id="$IDm0">Chat</span><span id="$IDm2">Code</span></div>
           <div class="tc-modelo">Sonnet <span style="color:#6b6862">⌄</span></div>
           <svg class="tc-mic" id="$IDmic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
           <div class="tc-env"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></div>
@@ -175,9 +175,9 @@ document.getElementById("$IDci").innerHTML = ASTER;
 document.getElementById("$IDwv").innerHTML = "<i></i>".repeat(40);
 const $ = (s) => "#$ID" + s;
 const ax = Array.from(document.querySelectorAll($("ax") + " > *"));
-// troca de aba no seletor Chat / Cowork / Code
+// troca de aba no seletor Chat / Code
 const ON = { backgroundColor: "#ffffff", color: "#1f1e1c", boxShadow: "0 1px 3px rgba(0,0,0,.08)" }, OFF = { backgroundColor: "rgba(255,255,255,0)", color: "#6b6862", boxShadow: "0 0 0 rgba(0,0,0,0)" };
-const aba = (k, t) => [0, 1, 2].forEach((j) => tl.to($("m" + j), { ...(j === k ? ON : OFF), duration: .2, ease: "power2.out" }, t));
+const aba = (k, t) => [0, 2].forEach((j) => tl.to($("m" + j), { ...(j === k ? ON : OFF), duration: .2, ease: "power2.out" }, t));
 // immediateRender: false, porque o mesmo elemento aparece e some mais de uma vez na cena
 const aparece = (s, t, de = { y: 24 }, dura = .35) => tl.fromTo(s, { opacity: 0, ...de }, { opacity: 1, x: 0, y: 0, scale: 1, duration: dura, ease: "power3.out", immediateRender: false }, t);
 const some = (s, t, dura = .2) => tl.to(s, { opacity: 0, duration: dura, ease: "power2.in" }, t);
@@ -196,9 +196,9 @@ tl.fromTo($("b2"), { height: 0 }, { height: 130, duration: .5, ease: "back.out(1
 tl.to($("dl"), { x: -600, opacity: 0, duration: .35, ease: "back.in(1.4)" }, T(4) - .15);
 some($("br"), T(4) - .15);
 tl.to($("app"), { x: 0, y: 0, scale: 1, duration: .6, ease: "power3.inOut" }, T(4) - .05);
-// "três abas": o seletor de abas acende uma por uma
+// "abas": o seletor de abas acende uma por uma
 tl.to($("mo"), { boxShadow: "0 0 0 4px #d4704e", duration: .25 }, T(5) - .1);
-[0, 1, 2].forEach((j) => tl.fromTo($("m" + j), { scale: 1 }, { keyframes: [{ scale: 1.12, duration: .1 }, { scale: 1, duration: .2, ease: "back.out(2)" }], immediateRender: false }, T(5) + j * .16));
+[0, 2].forEach((j) => tl.fromTo($("m" + j), { scale: 1 }, { keyframes: [{ scale: 1.12, duration: .1 }, { scale: 1, duration: .2, ease: "back.out(2)" }], immediateRender: false }, T(5) + (j ? 1 : 0) * .16));
 tl.to($("mo"), { boxShadow: "0 0 0 0px #d4704e", duration: .25 }, T(6) - .1);
 
 // 2. Chat: o pedido digitado, enviado, e a resposta chegando; as três pílulas do que dá para fazer
@@ -215,11 +215,11 @@ aparece($("ch") + " .ga-bolha", T(6) + 1.2, { y: 20 });
 tl.fromTo($("ch") + " .ga-resp > *", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .25, ease: "power3.out", stagger: .12 }, T(6) + 1.45);
 [7, 8, 9].forEach((m, j) => tl.fromTo($("q" + j), { opacity: 0, y: 24, scale: .8 }, { opacity: 1, y: 0, scale: 1, duration: .3, ease: "back.out(2.2)" }, T(m)));
 
-// 3. Cowork: a aba troca; a pasta é escolhida; ele lê os arquivos e monta o relatório
+// 3. A pasta, no Chat (o Cowork se juntou ao Chat): a pasta é escolhida; ele lê os arquivos e monta o relatório
 some($("q0") + ", " + $("q1") + ", " + $("q2"), T(10) - .2);
 some($("ch"), T(10) - .1);
 aparece($("ola"), T(10) + .05, { y: 0 }, .3);
-aba(1, T(10));
+aba(0, T(10));
 tl.fromTo($("dp"), { opacity: 0, scale: .94, y: 10 }, { opacity: 1, scale: 1, y: 0, duration: .25, ease: "back.out(1.8)" }, T(11) + .05);
 tl.to($("dr"), { backgroundColor: "#f1efe9", duration: .1 }, T(12) - .15);
 some($("dp"), T(12) + .12, .15);

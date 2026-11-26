@@ -19,7 +19,8 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "remotion": "4.0.543",
-    "three": "0.187.0"
+    "three": "0.187.0",
+    "three-mesh-bvh": "0.9.1"
   },
   "devDependencies": {
     "@types/react": "19.2.2",
