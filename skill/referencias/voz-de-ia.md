@@ -75,6 +75,21 @@ Saem `voz.wav`, `palavras.json` (o tempo de cada palavra, sem transcrição) e `
 
   Anote a expressão inteira no `pronuncia.md` (`| A IA | A iá |`), e não só a palavra. Com outra voz, teste antes uma frase curta com cada grafia e peça à pessoa para ouvir: a transcrição corrige o que ouve e não pega a emenda.
 
+- **A pronúncia é conferida sozinha, pelos sons.** A mesma grafia sai diferente a cada geração: "Claude Code" já saiu "Clóud Cádi", que soa "Claude, Claude". A transcrição não pega esse erro, porque "corrige" para a palavra que conhece. Por isso o `voz` passa o áudio por um reconhecedor de fonemas, que escreve os sons ouvidos. Ele roda no computador, é gratuito e baixa uns 1,2 GB na primeira vez.
+  - Cada palavra difícil tem um padrão de sons. "Claude Code" já vem conferido.
+  - Quando uma palavra sai errada, o `voz` gera de novo só a frase inteira em que ela está e põe no lugar da antiga, no silêncio entre as frases, com a mesma pausa. Faz isso até 4 vezes.
+  - Nos textos com personagens, gera de novo a fala inteira.
+  - A pessoa não precisa ouvir nem escolher versão. Não gere três versões para ela escolher.
+  - Para conferir outra palavra difícil, ponha na terceira coluna do `pronuncia.md` os sons que separam o certo do errado. É uma expressão regular sobre os fonemas separados por espaço e não pode ter `|`:
+
+```
+| Na tela | Para a voz | Sons |
+|---|---|---|
+| Claude Code | Clóud Côudi | k l .*k o |
+```
+
+  Para achar o padrão, gere duas ou três vezes uma frase curta com a palavra. Rode `python -c "from motor import fonemas; print(fonemas.sons('voz.wav', INICIO, FIM))"` de dentro de `.ferramenta/sistema/` em cada uma, use o tempo da palavra no `palavras.json` e compare os sons da versão certa com os da errada. A primeira vez, aqui, é a única em que a pessoa ouve: ela diz qual versão está certa. Se o reconhecedor não carregar (sem internet na primeira vez), o `voz` avisa e segue sem conferir. Nesse caso, peça à pessoa para ouvir as palavras difíceis.
+
 - **Trocar uma palavra ou o final** depois de aprovado: gere de novo a fala inteira em que ela está, com a pontuação natural, e deixe as outras falas como estão. O produto já guarda cada fala separada, então isso não refaz o resto.
 - **Sem remendo na voz.** Quem ouve percebe, e cada remendo vira mais uma versão e mais crédito gasto. Nunca:
   - corte uma fala no meio;

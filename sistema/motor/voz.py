@@ -45,12 +45,23 @@ def trocas() -> list[tuple[str, str]]:
     return res
 
 
-def _ler_banco(banco: Path) -> list[tuple[str, str]]:
+def _ler_banco(banco: Path, coluna: int = 1) -> list[tuple[str, str]]:
+    """coluna 1: a grafia para a voz; coluna 2: os sons que a voz tem que fazer (ver o fonemas.py)."""
     res = []
     for linha in banco.read_text(encoding="utf-8").splitlines():
         cel = [c.strip() for c in linha.strip().strip("|").split("|")]
-        if len(cel) >= 2 and cel[0] not in ("Na tela", "") and not set(cel[0]) <= {"-", ":"} and cel[1] not in ("—", "-", ""):
-            res.append((cel[0], cel[1]))
+        if len(cel) > coluna and cel[0] not in ("Na tela", "") and not set(cel[0]) <= {"-", ":"} \
+                and cel[coluna].strip("`") not in ("—", "-", ""):
+            res.append((cel[0], cel[coluna].strip("`")))
+    return res
+
+
+def sons_certos() -> list[tuple[str, str]]:
+    """As regras da coluna "Sons" do pronuncia.md (do banco da pessoa e do vídeo), para o fonemas.py."""
+    res = []
+    for banco in [MEU_ESTILO / "pronuncia.md"] + ([_PASTA_DO_TEXTO / "pronuncia.md"] if _PASTA_DO_TEXTO else []):
+        if banco.exists():
+            res += _ler_banco(banco, 2)  # a do vídeo vem depois e fica por cima
     return res
 
 
@@ -110,47 +121,144 @@ def narrar(texto: Path, saida: Path, voz_id: str | None = None) -> None:
     velocidade = ajustes_voz.get("velocidade", 0.95)
     saida.mkdir(parents=True, exist_ok=True)
     tt = texto.read_text(encoding="utf-8").split()
-    vt, mapa = para_voz(tt)
-    fala = " ".join(vt)
-    print("voz:", fala)
-    k = chave()
-    preferencias = json.loads(urllib.request.urlopen(urllib.request.Request(
-        f"https://api.elevenlabs.io/v1/voices/{voz_id}/settings", headers={"xi-api-key": k})).read())
-    preferencias["speed"] = 1.0
-    corpo = {"text": fala, "model_id": modelo, "voice_settings": preferencias}
-    if cfg.get("idioma"):
-        corpo["language_code"] = cfg["idioma"]
-    req = urllib.request.Request(
-        f"https://api.elevenlabs.io/v1/text-to-speech/{voz_id}/with-timestamps?output_format=mp3_44100_128",
-        data=json.dumps(corpo).encode(), headers={"xi-api-key": k, "Content-Type": "application/json"})
-    d = json.loads(urllib.request.urlopen(req).read())
-    (saida / "voz-original.mp3").write_bytes(base64.b64decode(d["audio_base64"]))
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(saida / "voz-original.mp3"), "-af", f"atempo={velocidade}",
-                    "-ar", "48000", str(saida / "voz.wav")], check=True)
-    fator = 1 / velocidade
-    al = d["alignment"]
-    blocos, cur = [], None
-    for c, ini, fim in zip(al["characters"], al["character_start_times_seconds"], al["character_end_times_seconds"]):
-        if c.isspace():
-            if cur:
-                blocos.append(cur)
-                cur = None
-        elif cur is None:
-            cur = [ini, fim]
-        else:
-            cur[1] = fim
-    if cur:
-        blocos.append(cur)
-    if len(blocos) != len(vt):
-        raise SystemExit(f"Alinhamento com {len(blocos)} palavras, voz com {len(vt)}")
-    gravar_json(saida / "palavras.json", [{"texto": t, "inicio": round(blocos[j0][0] * fator, 3),
-                                           "fim": round(blocos[j1 - 1][1] * fator, 3)} for t, (j0, j1) in zip(tt, mapa)])
+    print("voz:", " ".join(para_voz(tt)[0]))
+    g = _Gerador(voz_id, modelo, velocidade, cfg.get("idioma"))
+    pal = g.gerar(saida, tt)
+    # A mesma grafia sai diferente a cada geração ("Claude Code" virou "Clóud Cádi", que soa "Claude, Claude"). O
+    # fonemas.py confere as palavras difíceis pelos sons, sem a pessoa ouvir. Numa fala longa a voz erra quase sempre,
+    # e a mesma frase sozinha acerta: então gera de novo só a frase INTEIRA que errou, e ela entra no silêncio entre
+    # as frases (nunca um pedaço de frase). Calibrado na oficina em 2026-11-26.
+    from . import fonemas
+    extras = sons_certos()
+    for _ in range(3):
+        falhas = fonemas.conferir(str(saida / "voz.wav"), pal, extras)
+        if not falhas:
+            break
+        for s, e in sorted({_frase_de(tt, i) for i in falhas}, reverse=True):
+            pal = _refazer_frase(g, saida, tt, pal, s, e, extras)
+    else:
+        raise SystemExit("A pronúncia ainda saiu errada depois de gerar de novo as frases: reescreva a frase ou teste "
+                         "outra grafia no pronuncia.md.")
     dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
                                 str(saida / "voz.wav")], capture_output=True, text=True).stdout)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "color=c=black:s=1080x1920:r=30", "-i", str(saida / "voz.wav"),
                     "-af", "apad=pad_dur=0.6", "-t", f"{dur + .6:.3f}", "-c:v", "libx264", "-pix_fmt", "yuv420p",
                     "-c:a", "aac", "-b:a", "256k", str(saida / "base.mp4")], check=True)
     print(f"{len(tt)} palavras, {dur + .6:.2f} s em {saida}")
+    print(f"Créditos: {g.gastos} caracteres gerados.")
+
+
+class _Gerador:
+    """Uma voz (id, modelo, velocidade) e a chave: gera um texto e grava voz-original.mp3, voz.wav e palavras.json."""
+
+    def __init__(self, voz_id, modelo, velocidade, idioma):
+        self.voz_id, self.modelo, self.velocidade, self.idioma = voz_id, modelo, velocidade, idioma
+        self.k, self.preferencias, self.gastos = chave(), None, 0
+
+    def gerar(self, saida: Path, tt: list[str], antes: str = "", depois: str = "") -> list[dict]:
+        vt, mapa = para_voz(tt)
+        fala = " ".join(vt)
+        if self.preferencias is None:
+            self.preferencias = json.loads(urllib.request.urlopen(urllib.request.Request(
+                f"https://api.elevenlabs.io/v1/voices/{self.voz_id}/settings", headers={"xi-api-key": self.k})).read())
+            self.preferencias["speed"] = 1.0
+        corpo = {"text": fala, "model_id": self.modelo, "voice_settings": self.preferencias}
+        if self.idioma:
+            corpo["language_code"] = self.idioma
+        if antes:
+            corpo["previous_text"] = antes
+        if depois:
+            corpo["next_text"] = depois
+        req = urllib.request.Request(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{self.voz_id}/with-timestamps?output_format=mp3_44100_128",
+            data=json.dumps(corpo).encode(), headers={"xi-api-key": self.k, "Content-Type": "application/json"})
+        d = json.loads(urllib.request.urlopen(req).read())
+        self.gastos += len(fala)
+        saida.mkdir(parents=True, exist_ok=True)
+        (saida / "voz-original.mp3").write_bytes(base64.b64decode(d["audio_base64"]))
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(saida / "voz-original.mp3"), "-af",
+                        f"atempo={self.velocidade}", "-ar", "48000", str(saida / "voz.wav")], check=True)
+        fator = 1 / self.velocidade
+        blocos = _blocos(d["alignment"])
+        if len(blocos) != len(vt):
+            raise SystemExit(f"Alinhamento com {len(blocos)} palavras, voz com {len(vt)}")
+        pal = [{"texto": t, "inicio": round(blocos[j0][0] * fator, 3), "fim": round(blocos[j1 - 1][1] * fator, 3)}
+               for t, (j0, j1) in zip(tt, mapa)]
+        gravar_json(saida / "palavras.json", pal)
+        return pal
+
+
+def _frase_de(tt: list[str], i: int) -> tuple[int, int]:
+    """(início, fim) da frase que tem a palavra i: de depois do último ponto até o próximo."""
+    ini = i
+    while ini > 0 and not tt[ini - 1].endswith((".", "?", "!")):
+        ini -= 1
+    fim = i
+    while fim < len(tt) - 1 and not tt[fim].endswith((".", "?", "!")):
+        fim += 1
+    return ini, fim + 1
+
+
+def _audio(wav: Path):
+    import numpy as np
+    b = subprocess.run(["ffmpeg", "-v", "error", "-i", str(wav), "-f", "s16le", "-ac", "1", "-ar", "48000", "-"],
+                       capture_output=True).stdout
+    return np.frombuffer(b, np.int16)
+
+
+def _silencio(x, de: float, ate: float) -> float:
+    """O ponto mais baixo (janela de 10 ms) entre de e ate, em segundos."""
+    import numpy as np
+    a, b = int(de * 48000), max(int(de * 48000) + 480, int(ate * 48000))
+    e = [np.sqrt(np.mean(x[j:j + 480].astype(float) ** 2)) for j in range(a, b, 240)]
+    return (a + 240 * int(np.argmin(e)) + 240) / 48000
+
+
+def _refazer_frase(g: _Gerador, saida: Path, tt: list[str], pal: list[dict], s: int, e: int, extras,
+                   tentativas: int = 4) -> list[dict]:
+    """Gera de novo a frase tt[s:e] inteira até a pronúncia bater e põe no lugar da antiga, cortando nos silêncios
+    entre as frases. As pausas antes e depois ficam do mesmo tamanho."""
+    import numpy as np
+    from . import fonemas
+    print(f"gerando de novo a frase inteira: {' '.join(tt[s:e])}")
+    antes = " ".join(para_voz(tt[:s])[0]) if s else ""
+    depois = " ".join(para_voz(tt[e:])[0]) if e < len(tt) else ""
+    pasta = saida / "frases" / f"{s:03d}"
+    for tentativa in range(1, tentativas + 1):
+        # Com o texto de antes junto, a voz errou 4 de 4 (a palavra repetida antes puxa o erro); a frase sozinha
+        # acertou 10 de 10 no teste. Por isso o contexto só vai na última tentativa.
+        ctx = (antes, depois) if tentativa == tentativas else ("", "")
+        sub = g.gerar(pasta, tt[s:e], *ctx)
+        if not fonemas.conferir(str(pasta / "voz.wav"), sub, extras):
+            break
+        print(f"  tentativa {tentativa} da frase: saiu errada")
+    else:
+        raise SystemExit(f"A frase saiu errada {tentativas} vezes: reescreva a frase ou teste outra grafia no pronuncia.md.")
+    x, y = _audio(saida / "voz.wav"), _audio(pasta / "voz.wav")
+    corte_a = _silencio(x, pal[s - 1]["fim"], pal[s]["inicio"]) if s else 0.0
+    corte_b = _silencio(x, pal[e - 1]["fim"], pal[e]["inicio"]) if e < len(pal) else len(x) / 48000
+    # a frase nova entra com a mesma folga que a antiga tinha antes da primeira palavra e depois da última
+    ini_y = max(0.0, sub[0]["inicio"] - (pal[s]["inicio"] - corte_a))
+    fim_y = min(len(y) / 48000, sub[-1]["fim"] + (corte_b - pal[e - 1]["fim"]))
+    parte = y[int(ini_y * 48000):int(fim_y * 48000)]
+    # a ElevenLabs às vezes corta logo depois da voz: completa com silêncio, para a pausa não encurtar
+    lead = (pal[s]["inicio"] - corte_a) - (sub[0]["inicio"] - ini_y)
+    trail = (corte_b - pal[e - 1]["fim"]) - (fim_y - sub[-1]["fim"])
+    z = lambda t: np.zeros(int(max(0.0, t) * 48000), np.int16)
+    parte = np.concatenate([z(lead), parte, z(trail)])
+    ini_y -= max(0.0, lead)
+    novo = np.concatenate([x[:int(corte_a * 48000)], parte, x[int(corte_b * 48000):]])
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "s16le", "-ar", "48000", "-ac", "1", "-i", "-",
+                    str(saida / "voz.wav")], input=novo.tobytes(), check=True)
+    d_sub = corte_a - ini_y
+    d_fim = (corte_a + len(parte) / 48000) - corte_b
+    for k, w in enumerate(pal):
+        if s <= k < e:
+            w["inicio"], w["fim"] = round(sub[k - s]["inicio"] + d_sub, 3), round(sub[k - s]["fim"] + d_sub, 3)
+        elif k >= e:
+            w["inicio"], w["fim"] = round(w["inicio"] + d_fim, 3), round(w["fim"] + d_fim, 3)
+    gravar_json(saida / "palavras.json", pal)
+    return pal
 
 
 # ---------- várias vozes: um narrador e uma voz para cada personagem (a Série Animada) ----------
@@ -224,6 +332,8 @@ def narrar_falas(falas: list[dict], saida: Path, voz_id: str | None = None) -> N
 
     pasta = saida / "falas"
     pasta.mkdir(parents=True, exist_ok=True)
+    from . import fonemas
+    extras = sons_certos()
     k, preferencias, gastos, reaproveitadas = None, {}, 0, 0
     partes, palavras, lista = [], [], []
     t = geral.get("inicio", 0.4)  # um respiro antes da primeira fala
@@ -236,34 +346,45 @@ def narrar_falas(falas: list[dict], saida: Path, voz_id: str | None = None) -> N
         d.mkdir(exist_ok=True)
         assinatura = f"{v['id']} {v['modelo']}\n{fala}"
         guardada = d / "assinatura.txt"
-        if guardada.exists() and guardada.read_text(encoding="utf-8") == assinatura \
-                and (d / "alinhamento.json").exists() and (d / "voz-original.mp3").exists():
-            reaproveitadas += 1
-        else:
-            k = k or chave()
-            if v["id"] not in preferencias:
-                preferencias[v["id"]] = json.loads(urllib.request.urlopen(urllib.request.Request(
-                    f"https://api.elevenlabs.io/v1/voices/{v['id']}/settings", headers={"xi-api-key": k})).read())
-                preferencias[v["id"]]["speed"] = 1.0
-            corpo = {"text": fala, "model_id": v["modelo"], "voice_settings": preferencias[v["id"]]}
-            if cfg.get("idioma"):
-                corpo["language_code"] = cfg["idioma"]
-            print(f"gerando a fala {n} ({f['quem']}): {fala}")
-            req = urllib.request.Request(
-                f"https://api.elevenlabs.io/v1/text-to-speech/{v['id']}/with-timestamps?output_format=mp3_44100_128",
-                data=json.dumps(corpo).encode(), headers={"xi-api-key": k, "Content-Type": "application/json"})
-            resposta = json.loads(urllib.request.urlopen(req).read())
-            (d / "voz-original.mp3").write_bytes(base64.b64decode(resposta["audio_base64"]))
-            gravar_json(d / "alinhamento.json", resposta["alignment"])
-            guardada.write_text(assinatura, encoding="utf-8")
-            gastos += len(fala)
-        # velocidade final: o ffmpeg muda o ritmo sem mudar o tom; o narrador pode ir mais rápido que os personagens
         vel = v["velocidade"]
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(d / "voz-original.mp3"), "-af", f"atempo={vel}",
-                        "-ar", "48000", "-ac", "1", str(d / "voz-final.wav")], check=True)
-        blocos = _blocos(json.loads((d / "alinhamento.json").read_text(encoding="utf-8")))
-        if len(blocos) != len(vt):
-            raise SystemExit(f"Fala {n}: alinhamento com {len(blocos)} palavras, voz com {len(vt)}")
+        # Cada fala é conferida pelos sons (fonemas.py): a que sai com uma palavra difícil errada é gerada de novo,
+        # inteira, até 4 vezes. A pessoa não precisa ouvir.
+        for tentativa in range(1, 5):
+            if tentativa == 1 and guardada.exists() and guardada.read_text(encoding="utf-8") == assinatura \
+                    and (d / "alinhamento.json").exists() and (d / "voz-original.mp3").exists():
+                reaproveitadas += 1
+            else:
+                k = k or chave()
+                if v["id"] not in preferencias:
+                    preferencias[v["id"]] = json.loads(urllib.request.urlopen(urllib.request.Request(
+                        f"https://api.elevenlabs.io/v1/voices/{v['id']}/settings", headers={"xi-api-key": k})).read())
+                    preferencias[v["id"]]["speed"] = 1.0
+                corpo = {"text": fala, "model_id": v["modelo"], "voice_settings": preferencias[v["id"]]}
+                if cfg.get("idioma"):
+                    corpo["language_code"] = cfg["idioma"]
+                print(f"gerando a fala {n} ({f['quem']}): {fala}")
+                req = urllib.request.Request(
+                    f"https://api.elevenlabs.io/v1/text-to-speech/{v['id']}/with-timestamps?output_format=mp3_44100_128",
+                    data=json.dumps(corpo).encode(), headers={"xi-api-key": k, "Content-Type": "application/json"})
+                resposta = json.loads(urllib.request.urlopen(req).read())
+                (d / "voz-original.mp3").write_bytes(base64.b64decode(resposta["audio_base64"]))
+                gravar_json(d / "alinhamento.json", resposta["alignment"])
+                guardada.write_text(assinatura, encoding="utf-8")
+                gastos += len(fala)
+            # velocidade final: o ffmpeg muda o ritmo sem mudar o tom; o narrador pode ir mais rápido que os personagens
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(d / "voz-original.mp3"), "-af", f"atempo={vel}",
+                            "-ar", "48000", "-ac", "1", str(d / "voz-final.wav")], check=True)
+            blocos = _blocos(json.loads((d / "alinhamento.json").read_text(encoding="utf-8")))
+            if len(blocos) != len(vt):
+                raise SystemExit(f"Fala {n}: alinhamento com {len(blocos)} palavras, voz com {len(vt)}")
+            locais = [{"texto": txt, "inicio": blocos[j0][0] / vel, "fim": blocos[j1 - 1][1] / vel}
+                      for txt, (j0, j1) in zip(tt, mapa)]
+            if not fonemas.conferir(str(d / "voz-final.wav"), locais, extras):
+                break
+            guardada.unlink()  # errada: não fica no cache
+            print(f"  tentativa {tentativa} da fala {n}: pronúncia errada")
+        else:
+            raise SystemExit(f"A fala {n} saiu errada 4 vezes: reescreva a fala ou teste outra grafia no pronuncia.md.")
         dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
                                     str(d / "voz-final.wav")], capture_output=True, text=True).stdout)
         for txt, (j0, j1) in zip(tt, mapa):
